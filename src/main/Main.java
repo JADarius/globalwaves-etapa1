@@ -5,13 +5,17 @@ import checker.CheckerConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import fileio.input.CommandInput;
 import fileio.input.LibraryInput;
+import fileio.input.SongInput;
+import fileio.input.UserInput;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -74,6 +78,10 @@ public final class Main {
         ArrayNode outputs = objectMapper.createArrayNode();
 
         // TODO add your implementation
+        CommandInput[] commands = objectMapper.readValue(new File("input/" + filePathInput), CommandInput[].class);
+        for (CommandInput command : commands) {
+            System.out.println(command.getCommand());
+        }
 
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePathOutput), outputs);
