@@ -9,6 +9,9 @@ import fileio.input.CommandInput;
 import fileio.input.LibraryInput;
 import fileio.input.SongInput;
 import fileio.input.UserInput;
+import fileio.output.SearchOutput;
+import utils.CommandParser;
+import utils.User;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,8 +82,13 @@ public final class Main {
 
         // TODO add your implementation
         CommandInput[] commands = objectMapper.readValue(new File("input/" + filePathInput), CommandInput[].class);
+        ArrayList<User> users = new ArrayList<>();
+        for (UserInput user : library.getUsers()) {
+            users.add(new User(user.getUsername()));
+        }
+        CommandParser parser = CommandParser.getInstance(library, users);
         for (CommandInput command : commands) {
-            System.out.println(command.getCommand());
+            outputs.add(parser.parseCommand(command));
         }
 
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
