@@ -6,24 +6,18 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Playlist {
-    private String user;
+    private String owner;
     private String name;
     private ArrayList<SongInput> songs;
     private String visibility;
     private int followers;
-    private ArrayList<Integer> shuffleOrder;
-    private Random rand = null;
-    private boolean shuffle;
-    private int currentSong;
 
-    public Playlist(String user, String name) {
-        this.user = user;
+    public Playlist(String owner, String name) {
+        this.owner = owner;
         this.name = name;
         this.songs = new ArrayList<SongInput>();
         this.visibility = "public";
         this.followers = 0;
-        this.shuffle = false;
-        this.currentSong = 0;
     }
 
     public void switchVisibility() {
@@ -34,38 +28,22 @@ public class Playlist {
         }
     }
 
-    public void AddRemoveInPlaylist(SongInput song) {
+    public String addRemoveInPlaylist(SongInput song) {
         if (this.songs.contains(song)) {
             this.songs.remove(song);
+            return "Successfully removed from playlist.";
         } else {
             this.songs.add(song);
+            return "Successfully added to playlist.";
         }
     }
 
-    public void shuffle(int seed) {
-        this.rand = new Random(seed);
-        this.shuffleOrder = new ArrayList<>();
-        for (int index = 0; index < songs.size(); index++) {
-            int changeIndex = rand.nextInt(songs.size());
-            shuffleOrder.add(changeIndex);
-        }
-        this.shuffle = true;
+    public String getOwner() {
+        return owner;
     }
 
-    public SongInput next() {
-        if (shuffle) {
-            return songs.get(shuffleOrder.get(++this.currentSong));
-        } else {
-            return songs.get(++this.currentSong);
-        }
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
     public String getName() {
@@ -90,5 +68,9 @@ public class Playlist {
 
     public void setFollowers(int followers) {
         this.followers = followers;
+    }
+
+    public String getVisibility() {
+        return visibility;
     }
 }

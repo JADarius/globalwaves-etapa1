@@ -40,7 +40,7 @@ public class Searcher {
                     continue;
                 }
             }
-            if (filters.getLyrics() != null && !song.getLyrics().contains(filters.getLyrics())) {
+            if (filters.getLyrics() != null && !song.getLyrics().toLowerCase().contains(filters.getLyrics().toLowerCase())) {
                 continue;
             }
             if (filters.getGenre() != null && !song.getGenre().toUpperCase().equals(filters.getGenre().toUpperCase())) {
@@ -87,6 +87,28 @@ public class Searcher {
             list.add(podcast);
             podcast_count += 1;
             if (podcast_count == 5) {
+                break;
+            }
+        }
+        return list;
+    }
+
+    public ArrayList<Playlist> searchPlaylist(FilterInput filters, ArrayList<Playlist> playlists) {
+        int playlist_count = 0;
+        ArrayList<Playlist> list = new ArrayList<>();
+        for (Playlist playlist : playlists) {
+            if (playlist.getVisibility().equals("private")) {
+                continue;
+            }
+            if (filters.getName() != null && !playlist.getName().contains(filters.getName())) {
+                continue;
+            }
+            if (filters.getOwner() != null && !playlist.getOwner().equals(filters.getOwner())) {
+                continue;
+            }
+            list.add(playlist);
+            playlist_count += 1;
+            if (playlist_count == 5) {
                 break;
             }
         }

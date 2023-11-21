@@ -7,21 +7,35 @@ public class Stats {
     private boolean shuffle;
     private boolean paused;
 
-    public Stats(String name, int remainedTime, int repeat, boolean shuffle, boolean paused) {
+    public Stats(String name, int remainedTime, int repeat, boolean shuffle, boolean paused, int type) {
         this.name = name;
         this.remainedTime = remainedTime;
         this.shuffle = shuffle;
         this.paused = paused;
-        switch (repeat) {
-            case 0:
-                this.repeat = "No Repeat";
-                break;
-            case 1:
-                this.repeat = "Repeat All";
-                break;
-            case 2:
-                this.repeat = "Repeat Current Song";
-                break;
+        if (type == 2) {
+            switch (repeat) {
+                case 0:
+                    this.repeat = "No Repeat";
+                    break;
+                case 1:
+                    this.repeat = "Repeat All";
+                    break;
+                case 2:
+                    this.repeat = "Repeat Current Song";
+                    break;
+            }
+        } else {
+            switch (repeat) {
+                case 0:
+                    this.repeat = "No Repeat";
+                    break;
+                case 1:
+                    this.repeat = "Repeat Once";
+                    break;
+                case 2:
+                    this.repeat = "Repeat Infinite";
+                    break;
+            }
         }
     }
 
