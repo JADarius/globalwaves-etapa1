@@ -5,7 +5,9 @@ import fileio.input.PodcastInput;
 import fileio.input.SongInput;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 public class Player {
     private SongInput song = null;
@@ -28,7 +30,7 @@ public class Player {
         this.repeat = 0;
         this.finshed = false;
         this.shuffle = false;
-        this.currentItem = 1;
+        this.currentItem = 0;
     }
 
     public Player(SongInput song) {
@@ -50,7 +52,7 @@ public class Player {
         this();
         this.podcast = save.getPodcast();
         this.currentItem = save.getCurrentItem();
-        this.episode = podcast.getEpisodes().get(currentItem - 1);
+        this.episode = podcast.getEpisodes().get(currentItem);
         this.remainedTime = save.getRemainedTime();
         this.type = 1;
     }
@@ -111,13 +113,23 @@ public class Player {
     }
 
     public void shuffle(int seed) {
-        this.rand = new Random(seed);
-        this.shuffleOrder = new ArrayList<>();
-        for (int index = 0; index < playlist.getSongs().size(); index++) {
-            int changeIndex = rand.nextInt(playlist.getSongs().size());
-            shuffleOrder.add(changeIndex);
+        if (!shuffle) {
+            rand = new Random(seed);
+            shuffleOrder = new ArrayList<>();
+            for (int index = 0; index < playlist.getSongs().size(); index++) {
+                shuffleOrder.add(index);
+            }
+            Collections.shuffle(shuffleOrder, rand);
+            shuffle = true;
+            for(int index = 0; index < playlist.getSongs().size(); index++) {
+                if (shuffleOrder.get(index) == currentItem) {
+                    currentItem = index;
+                    break;
+                }
+            }
+        } else {
+            shuffle = false;
         }
-        this.shuffle = true;
     }
 
     public void next() {
@@ -129,33 +141,26 @@ public class Player {
                 } else if (repeat == 2) {
                     remainedTime = song.getDuration();
                 } else {
-                    remainedTime = 0;
-                    finshed = true;
-                    paused = true;
-                    song = null;
+                    stop();
                 }
                 break;
             case 1:
-                if (currentItem == podcast.getEpisodes().size()) {
+                if (currentItem == podcast.getEpisodes().size() - 1) {
                     if (repeat == 1) {
                         remainedTime = episode.getDuration();
                         repeat = 0;
                     } else if (repeat == 2) {
                         remainedTime = episode.getDuration();
                     } else {
-                        remainedTime = 0;
-                        finshed = true;
-                        paused = true;
-                        episode = null;
-                        podcast = null;
+                        stop();
                     }
                 } else {
-                    episode = podcast.getEpisodes().get(currentItem++);
+                    episode = podcast.getEpisodes().get(++currentItem);
                     remainedTime = episode.getDuration();
                 }
                 break;
             case 2:
-                if (currentItem == playlist.getSongs().size()) {
+                if (currentItem == playlist.getSongs().size() - 1 || (shuffle && currentItem == shuffleOrder.size() - 1)) {
                     if (repeat == 1) {
                         if (shuffle) {
                             song = playlist.getSongs().get(shuffleOrder.get(0));
@@ -166,14 +171,14 @@ public class Player {
                     } else if (repeat == 2) {
                         remainedTime = song.getDuration();
                     } else {
-                        remainedTime = 0;
-                        finshed = true;
-                        paused = true;
-                        playlist = null;
-                        song = null;
+                        stop();
                     }
                 } else {
-                    song = playlist.getSongs().get(currentItem++);
+                    if (shuffle) {
+                        song = playlist.getSongs().get(shuffleOrder.get(++currentItem));
+                    } else {
+                        song = playlist.getSongs().get(++currentItem);
+                    }
                     remainedTime = song.getDuration();
                 }
                 break;
@@ -189,6 +194,7 @@ public class Player {
         remainedTime = 0;
         repeat = 0;
         finshed = true;
+        shuffle = false;
     }
 
     public String getRepeatState() {
@@ -236,5 +242,9 @@ public class Player {
 
     public int getCurrentItem() {
         return currentItem;
+    }
+
+    public boolean isShuffle() {
+        return shuffle;
     }
 }

@@ -195,6 +195,20 @@ public class User {
         return "Repeat mode changed to " + player.getRepeatState();
     }
 
+    public String shuffle(int seed) {
+        if (player == null || player.isFinshed()) {
+            return "Please load a source before using the shuffle function.";
+        }
+        if (player.getType() != 2) {
+            return "The loaded source is not a playlist.";
+        }
+        player.shuffle(seed);
+        if (player.isShuffle()) {
+            return "Shuffle function activated successfully.";
+        }
+        return "Shuffle function deactivated successfully.";
+    }
+
     public ArrayList<SongInput> getSearchedSongs() {
         return searchedSongs;
     }

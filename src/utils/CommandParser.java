@@ -128,6 +128,10 @@ public class CommandParser {
             LoadOutput repeatOutput = new LoadOutput(commandInput);
             repeatOutput.setMessage(getUser(commandInput.getUsername()).repeat());
             output = mapper.valueToTree(repeatOutput);
+        } else if (command.equals("shuffle")) {
+            LoadOutput shuffleOutput = new LoadOutput(commandInput);
+            shuffleOutput.setMessage(getUser(commandInput.getUsername()).shuffle(commandInput.getSeed()));
+            output = mapper.valueToTree(shuffleOutput);
         }
         lastTimestamp = commandInput.getTimestamp();
         return output;
