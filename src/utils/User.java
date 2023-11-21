@@ -14,6 +14,7 @@ public class User {
     private boolean searchedForPodcasts;
     private SongInput selectedSong;
     private PodcastInput selectedPodcast;
+    private Player player = null;
 
     public User(String name) {
         this.name = name;
@@ -50,12 +51,13 @@ public class User {
     }
 
     public String select(int index) {
-        String output = "";
         if (searchedForSongs) {
             index--;
             if (index >= searchedSongs.size()) {
                 return "The selected ID is too high.";
             } else {
+                selectedSong = searchedSongs.get(index);
+                selectedPodcast = null;
                 return "Successfully selected " + searchedSongs.get(index).getName() + ".";
             }
         }
@@ -64,9 +66,39 @@ public class User {
             if (index >= searchedPodcasts.size()) {
                 return "The selected ID is too high.";
             } else {
+                selectedPodcast = searchedPodcasts.get(index);
+                selectedSong = null;
                 return "Successfully selected " + searchedPodcasts.get(index).getName() + ".";
             }
         }
         return "Please conduct a search before making a selection.";
+    }
+
+    public String load() {
+        if (selectedSong != null) {
+            player = new Player(selectedSong);
+            return "Playback loaded successfully.";
+        } else if (selectedPodcast != null) {
+            player = new Player(selectedPodcast);
+            return "Playback loaded successfully.";
+        }
+        return "Please select a source before attempting to load.";
+    }
+
+    public void update(int difference) {
+        if (player != null) {
+            player.update(difference);
+        }
+    }
+
+    public String playPause() {
+        if (player == null) {
+            return "Please load a source before attempting to pause or resume playback.";
+        }
+        return player.playPause();
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 }

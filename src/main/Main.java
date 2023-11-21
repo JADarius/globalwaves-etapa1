@@ -86,7 +86,7 @@ public final class Main {
         for (UserInput user : library.getUsers()) {
             users.add(new User(user.getUsername()));
         }
-        CommandParser parser = CommandParser.getInstance(library, users);
+        CommandParser parser = new CommandParser(library, users, objectMapper);
         for (CommandInput command : commands) {
             outputs.add(parser.parseCommand(command));
         }
