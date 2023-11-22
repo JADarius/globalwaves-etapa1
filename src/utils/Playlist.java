@@ -13,13 +13,15 @@ public class Playlist {
     private ArrayList<SongInput> songs;
     private String visibility;
     private int followers;
+    private int creationTime;
 
-    public Playlist(String owner, String name) {
+    public Playlist(String owner, String name, int creationTime) {
         this.owner = owner;
         this.name = name;
         this.songs = new ArrayList<>();
         this.visibility = "public";
         this.followers = 0;
+        this.creationTime = creationTime;
     }
 
     public void switchVisibility() {

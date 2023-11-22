@@ -11,6 +11,7 @@ import fileio.input.SongInput;
 import fileio.input.UserInput;
 import fileio.output.SearchOutput;
 import utils.CommandParser;
+import utils.Song;
 import utils.User;
 
 import java.io.File;
@@ -86,7 +87,11 @@ public final class Main {
         for (UserInput user : library.getUsers()) {
             users.add(new User(user.getUsername()));
         }
-        CommandParser parser = new CommandParser(library, users, objectMapper);
+        ArrayList<Song> songs = new ArrayList<>();
+        for (SongInput song : library.getSongs()) {
+            songs.add(new Song(song));
+        }
+        CommandParser parser = new CommandParser(library, users, objectMapper, songs);
         for (CommandInput command : commands) {
             outputs.add(parser.parseCommand(command));
         }

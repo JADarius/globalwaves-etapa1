@@ -136,12 +136,12 @@ public class User {
         return null;
     }
 
-    public Playlist createPlaylist(String name) {
+    public Playlist createPlaylist(String name, int creationTime) {
         if (searchForPlaylist(name) != null) {
             // we found a playlist
             return null;
         }
-        Playlist playlist = new Playlist(this.name, name);
+        Playlist playlist = new Playlist(this.name, name, creationTime);
         playlists.add(playlist);
         return playlist;
     }
@@ -160,7 +160,7 @@ public class User {
         return playlists.get(pid).addRemoveInPlaylist(player.getSong());
     }
 
-    public String like() {
+    public String like(ArrayList<Song> songs) {
         if (player == null || player.getSong() == null) {
             return "Please load a source before liking or unliking.";
         }
@@ -169,11 +169,22 @@ public class User {
         }
         if (likedSongs.contains(player.getSong())) {
             likedSongs.remove(player.getSong());
-            return "Unlike registered successfully.";
+            for (Song song : songs) {
+                if (song.getName().equals(player.getSong().getName())) {
+                    song.dislike();
+                    return "Unlike registered successfully.";
+                }
+            }
         } else {
             likedSongs.add(player.getSong());
-            return "Like registered successfully.";
+            for (Song song : songs) {
+                if (song.getName().equals(player.getSong().getName())) {
+                    song.like();
+                    return "Like registered successfully.";
+                }
+            }
         }
+        return "";
     }
 
     public ArrayList<PlaylistOutput> showPlaylists() {

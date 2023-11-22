@@ -9,18 +9,21 @@ import fileio.input.SongInput;
 import fileio.output.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class CommandParser {
     private final LibraryInput library;
     private final ArrayList<User> users;
     private final ArrayList<Playlist> playlists;
+    private final ArrayList<Song> songs;
     private final ObjectMapper mapper;
     private int lastTimestamp;
 
-    public CommandParser(LibraryInput library, ArrayList<User> users, ObjectMapper mapper) {
+    public CommandParser(LibraryInput library, ArrayList<User> users, ObjectMapper mapper, ArrayList<Song> songs) {
         this.library = library;
         this.users = users;
         this.mapper = mapper;
+        this.songs = songs;
         this.playlists = new ArrayList<>();
         this.lastTimestamp = 0;
     }
@@ -100,7 +103,7 @@ public class CommandParser {
             output = mapper.valueToTree(status);
         } else if (command.equals("createPlaylist")) {
             MessageOutput createPlaylistOutput = new MessageOutput(commandInput);
-            Playlist playlist = currentUser.createPlaylist(commandInput.getPlaylistName());
+            Playlist playlist = currentUser.createPlaylist(commandInput.getPlaylistName(), commandInput.getTimestamp());
             if (playlist == null) {
                 createPlaylistOutput.setMessage("A playlist with the same name already exists.");
             } else {
@@ -114,7 +117,7 @@ public class CommandParser {
             output = mapper.valueToTree(addRemoveOutput);
         } else if (command.equals("like")) {
             MessageOutput likeOutput = new MessageOutput(commandInput);
-            likeOutput.setMessage(currentUser.like());
+            likeOutput.setMessage(currentUser.like(songs));
             output = mapper.valueToTree(likeOutput);
         } else if (command.equals("showPlaylists")) {
             SearchPlaylistOutput showPlaylistOutput = new SearchPlaylistOutput(commandInput);
@@ -156,6 +159,60 @@ public class CommandParser {
             MessageOutput followOutput = new MessageOutput(commandInput);
             followOutput.setMessage(currentUser.follow());
             output = mapper.valueToTree(followOutput);
+        } else if (command.equals("getTop5Playlists")) {
+            playlists.sort(new Comparator<Playlist>() {
+                @Override
+                public int compare(Playlist o1, Playlist o2) {
+                    if (o1.getFollowers() > o2.getFollowers()) {
+                        return -1;
+                    } else if (o1.getFollowers() < o2.getFollowers()) {
+                        return 1;
+                    } else {
+                        if (o1.getCreationTime() < o2.getCreationTime()) {
+                            return -1;
+                        } else {
+                            return 1;
+                        }
+                    }
+                }
+            });
+            int count = 0;
+            ArrayList<String> topFive = new ArrayList<>();
+            for (Playlist playlist : playlists) {
+                topFive.add(playlist.getName());
+                count++;
+                if (count == 5) {
+                    break;
+                }
+            }
+            TopOutput topFiveOutput = new TopOutput(commandInput);
+            topFiveOutput.setResult(topFive);
+            output = mapper.valueToTree(topFiveOutput);
+        } else if (command.equals("getTop5Songs")) {
+            songs.sort(new Comparator<Song>() {
+                @Override
+                public int compare(Song o1, Song o2) {
+                    if (o1.getLikes() > o2.getLikes()) {
+                        return -1;
+                    } else if (o1.getLikes() < o2.getLikes()) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            });
+            int count = 0;
+            ArrayList<String> topFive = new ArrayList<>();
+            for (Song song : songs) {
+                topFive.add(song.getName());
+                count++;
+                if (count == 5) {
+                    break;
+                }
+            }
+            TopOutput topFiveOutput = new TopOutput(commandInput);
+            topFiveOutput.setResult(topFive);
+            output = mapper.valueToTree(topFiveOutput);
         }
         lastTimestamp = commandInput.getTimestamp();
         return output;
