@@ -3,25 +3,32 @@ package utils;
 import fileio.input.EpisodeInput;
 import fileio.input.PodcastInput;
 import fileio.input.SongInput;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 public class Player {
+    @Getter
     private SongInput song = null;
+    @Getter
     private PodcastInput podcast = null;
     private Playlist playlist = null;
+    @Getter
     private EpisodeInput episode = null;
+    @Getter
     private int remainedTime;
     private boolean paused;
     private int repeat;
+    @Getter
     private boolean finshed;
+    @Getter
     private int type; // 0 - song, 1 - podcast, 2 - playlist
     private ArrayList<Integer> shuffleOrder;
-    private Random rand = null;
+    @Getter
     private boolean shuffle;
+    @Getter
     private int currentItem;
 
 
@@ -114,7 +121,7 @@ public class Player {
 
     public void shuffle(int seed) {
         if (!shuffle) {
-            rand = new Random(seed);
+            Random rand = new Random(seed);
             shuffleOrder = new ArrayList<>();
             for (int index = 0; index < playlist.getSongs().size(); index++) {
                 shuffleOrder.add(index);
@@ -185,6 +192,33 @@ public class Player {
         }
     }
 
+    public String prev() {
+        paused = false;
+        if (type == 1) {
+            if (remainedTime < episode.getDuration()) {
+                remainedTime = episode.getDuration();
+            } else {
+                if (currentItem != 0) {
+                    currentItem--;
+                    episode = podcast.getEpisodes().get(currentItem);
+                    remainedTime = episode.getDuration();
+                }
+            }
+            return episode.getName() + ".";
+        } else {
+            if (remainedTime < song.getDuration()) {
+                remainedTime = song.getDuration();
+            } else {
+                if (currentItem != 0) {
+                    currentItem--;
+                    song = playlist.getSongs().get(currentItem);
+                    remainedTime = song.getDuration();
+                }
+            }
+        }
+        return song.getName() + ".";
+    }
+
     public void stop() {
         episode = null;
         podcast = null;
@@ -220,31 +254,20 @@ public class Player {
         return "";
     }
 
-    public boolean isFinshed() {
-        return finshed;
+    public void forward() {
+        if (remainedTime <= 90) {
+            next();
+            remainedTime = episode.getDuration();
+        } else {
+            remainedTime -= 90;
+        }
     }
 
-    public int getType() {
-        return type;
-    }
-
-    public SongInput getSong() {
-        return song;
-    }
-
-    public PodcastInput getPodcast() {
-        return podcast;
-    }
-
-    public int getRemainedTime() {
-        return remainedTime;
-    }
-
-    public int getCurrentItem() {
-        return currentItem;
-    }
-
-    public boolean isShuffle() {
-        return shuffle;
+    public void backward() {
+        if (remainedTime + 90 >= episode.getDuration()) {
+            remainedTime = episode.getDuration();
+        } else {
+            remainedTime = remainedTime + 90;
+        }
     }
 }

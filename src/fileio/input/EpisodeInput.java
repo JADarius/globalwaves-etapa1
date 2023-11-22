@@ -1,5 +1,8 @@
 package fileio.input;
 
+import lombok.Getter;
+
+@Getter
 public final class EpisodeInput {
     private String name;
     private Integer duration;
@@ -8,24 +11,12 @@ public final class EpisodeInput {
     public EpisodeInput() {
     }
 
-    public String getName() {
-        return name;
-    }
-
     public void setName(final String name) {
         this.name = name;
     }
 
-    public Integer getDuration() {
-        return duration;
-    }
-
     public void setDuration(final Integer duration) {
         this.duration = duration;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public void setDescription(final String description) {

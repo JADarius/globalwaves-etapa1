@@ -1,10 +1,12 @@
 package fileio.output;
 
 import fileio.input.CommandInput;
+import lombok.Getter;
 
 import java.util.ArrayList;
 
-public class ShowLikedOutput extends GenericOutput {
+@Getter
+public final class ShowLikedOutput extends GenericOutput {
     ArrayList<String> result;
 
     public ShowLikedOutput(CommandInput query) {
@@ -12,10 +14,6 @@ public class ShowLikedOutput extends GenericOutput {
         this.user = query.getUsername();
         this.timestamp = query.getTimestamp();
         this.result = new ArrayList<>();
-    }
-
-    public ArrayList<String> getResult() {
-        return result;
     }
 
     public void setResult(ArrayList<String> result) {

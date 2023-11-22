@@ -93,11 +93,11 @@ public class Searcher {
         return list;
     }
 
-    public ArrayList<Playlist> searchPlaylist(FilterInput filters, ArrayList<Playlist> playlists) {
+    public ArrayList<Playlist> searchPlaylist(FilterInput filters, ArrayList<Playlist> playlists, String username) {
         int playlist_count = 0;
         ArrayList<Playlist> list = new ArrayList<>();
         for (Playlist playlist : playlists) {
-            if (playlist.getVisibility().equals("private")) {
+            if (playlist.getVisibility().equals("private") && !playlist.getOwner().equals(username)) {
                 continue;
             }
             if (filters.getName() != null && !playlist.getName().contains(filters.getName())) {

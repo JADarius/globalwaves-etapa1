@@ -1,21 +1,17 @@
 package fileio.output;
 
 import fileio.input.CommandInput;
+import lombok.Getter;
 
-import java.util.ArrayList;
-
-public class SelectOutput extends GenericOutput {
+@Getter
+public final class MessageOutput extends GenericOutput {
     private String message;
 
-    public SelectOutput(CommandInput query) {
+    public MessageOutput(CommandInput query) {
         this.command = query.getCommand();
         this.user = query.getUsername();
         this.timestamp = query.getTimestamp();
         this.message = "";
-    }
-
-    public String getMessage() {
-        return message;
     }
 
     public void setMessage(String message) {

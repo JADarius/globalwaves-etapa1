@@ -3,23 +3,30 @@ package utils;
 import fileio.input.PodcastInput;
 import fileio.input.SongInput;
 import fileio.output.PlaylistOutput;
+import lombok.Getter;
 
 import java.util.ArrayList;
 
 public class User {
-    private String name;
-    private ArrayList<SongInput> likeedSongs;
+    @Getter
+    private final String name;
+    private final ArrayList<SongInput> likedSongs;
+    private final ArrayList<Playlist> followedPlaylists;
+    @Getter
     private ArrayList<PodcastInput> searchedPodcasts;
-    private ArrayList<PodcastSave> savedPodcasts;
+    private final ArrayList<PodcastSave> savedPodcasts;
+    @Getter
     private ArrayList<Playlist> searchedPlaylists;
+    @Getter
     private ArrayList<SongInput> searchedSongs;
-    private ArrayList<Playlist> playlists;
+    private final ArrayList<Playlist> playlists;
     private boolean searchedForSongs;
     private boolean searchedForPodcasts;
     private boolean searchedForPlaylists;
     private SongInput selectedSong;
     private PodcastInput selectedPodcast;
     private Playlist selectedPlaylist;
+    @Getter
     private Player player = null;
 
     public User(String name) {
@@ -32,8 +39,9 @@ public class User {
         selectedSong = null;
         selectedPodcast = null;
         playlists = new ArrayList<>();
-        likeedSongs = new ArrayList<>();
+        likedSongs = new ArrayList<>();
         savedPodcasts = new ArrayList<>();
+        followedPlaylists = new ArrayList<>();
     }
 
     public String select(int index) {
@@ -45,7 +53,9 @@ public class User {
                 selectedSong = searchedSongs.get(index);
                 selectedPodcast = null;
                 selectedPlaylist = null;
-                return "Successfully selected " + searchedSongs.get(index).getName() + ".";
+                searchedSongs = null;
+                searchedForSongs = false;
+                return "Successfully selected " + selectedSong.getName() + ".";
             }
         }
         if (searchedForPodcasts) {
@@ -56,7 +66,9 @@ public class User {
                 selectedPodcast = searchedPodcasts.get(index);
                 selectedSong = null;
                 selectedPlaylist = null;
-                return "Successfully selected " + searchedPodcasts.get(index).getName() + ".";
+                searchedPodcasts = null;
+                searchedForPodcasts = false;
+                return "Successfully selected " + selectedPodcast.getName() + ".";
             }
         }
         if (searchedForPlaylists) {
@@ -67,7 +79,9 @@ public class User {
                 selectedPlaylist = searchedPlaylists.get(index);
                 selectedPodcast = null;
                 selectedSong = null;
-                return "Successfully selected " + searchedPlaylists.get(index).getName() + ".";
+                searchedPlaylists = null;
+                searchedForPlaylists = false;
+                return "Successfully selected " + selectedPlaylist.getName() + ".";
             }
         }
         return "Please conduct a search before making a selection.";
@@ -153,11 +167,11 @@ public class User {
         if (player.getType() == 1) {
             return "Loaded source is not a song.";
         }
-        if (likeedSongs.contains(player.getSong())) {
-            likeedSongs.remove(player.getSong());
+        if (likedSongs.contains(player.getSong())) {
+            likedSongs.remove(player.getSong());
             return "Unlike registered successfully.";
         } else {
-            likeedSongs.add(player.getSong());
+            likedSongs.add(player.getSong());
             return "Like registered successfully.";
         }
     }
@@ -172,7 +186,7 @@ public class User {
 
     public ArrayList<String> showPreferredSongs() {
         ArrayList<String> output = new ArrayList<>();
-        for (SongInput song : likeedSongs) {
+        for (SongInput song : likedSongs) {
             output.add(song.getName());
         }
         return output;
@@ -209,8 +223,79 @@ public class User {
         return "Shuffle function deactivated successfully.";
     }
 
-    public ArrayList<SongInput> getSearchedSongs() {
-        return searchedSongs;
+    public String prev() {
+        if (player == null || player.isFinshed()) {
+            return "Please load a source before returning to the previous track.";
+        }
+        return "Returned to previous track successfully. The current track is " + player.prev();
+    }
+
+    public String next() {
+        if (player == null || player.isFinshed()) {
+            return "Please load a source before skipping to the next track.";
+        }
+        player.next();
+        if (player.isFinshed()) {
+            return "Please load a source before skipping to the next track.";
+        }
+        if (player.getType() == 1) {
+            return "Skipped to next track successfully. The current track is " + player.getEpisode().getName() + ".";
+        } else {
+            return "Skipped to next track successfully. The current track is " + player.getSong().getName() + ".";
+        }
+    }
+
+    public String forward() {
+        if (player == null || player.isFinshed()) {
+            return "Please load a source before attempting to forward.";
+        }
+        if (player.getType() != 1) {
+            return "The loaded source is not a podcast.";
+        }
+        player.forward();
+        return "Skipped forward successfully.";
+    }
+
+    public String backward() {
+        if (player == null || player.isFinshed()) {
+            return "Please select a source before rewinding.";
+        }
+        if (player.getType() != 1) {
+            return "The loaded source is not a podcast.";
+        }
+        player.backward();
+        return "Rewound successfully.";
+    }
+
+    public String switchVisibility(int pid) {
+        pid--;
+        if (pid >= playlists.size()) {
+            return "The specified playlist ID is too high.";
+        }
+        playlists.get(pid).switchVisibility();
+        return "Visibility status updated successfully to " + playlists.get(pid).getVisibility() + ".";
+    }
+
+    public String follow() {
+        if (selectedPlaylist == null) {
+            if (selectedPodcast == null && selectedSong == null) {
+                return "Please select a source before following or unfollowing.";
+            } else {
+                return "The selected source is not a playlist.";
+            }
+        }
+        if (selectedPlaylist.getOwner().equals(name)) {
+            return "You cannot follow or unfollow your own playlist.";
+        }
+        if (followedPlaylists.contains(selectedPlaylist)) {
+            followedPlaylists.remove(selectedPlaylist);
+            selectedPlaylist.removeFollower();
+            return "Playlist unfollowed successfully.";
+        } else {
+            followedPlaylists.add(selectedPlaylist);
+            selectedPlaylist.addFollower();
+            return "Playlist followed successfully.";
+        }
     }
 
     public void setSearchedSongs(ArrayList<SongInput> searchedSongs) {
@@ -220,27 +305,11 @@ public class User {
         this.searchedForPodcasts = false;
     }
 
-    public ArrayList<PodcastInput> getSearchedPodcasts() {
-        return searchedPodcasts;
-    }
-
     public void setSearchedPodcasts(ArrayList<PodcastInput> searchedPodcasts) {
         this.searchedPodcasts = searchedPodcasts;
         this.searchedForPodcasts = true;
         this.searchedForPlaylists = false;
         this.searchedForSongs = false;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public ArrayList<Playlist> getSearchedPlaylists() {
-        return searchedPlaylists;
     }
 
     public void setSearchedPlaylists(ArrayList<Playlist> searchedPlaylists) {

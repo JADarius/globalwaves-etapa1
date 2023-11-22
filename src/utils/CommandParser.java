@@ -9,13 +9,12 @@ import fileio.input.SongInput;
 import fileio.output.*;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class CommandParser {
-    private LibraryInput library;
-    private ArrayList<User> users;
-    private ArrayList<Playlist> playlists;
-    private ObjectMapper mapper;
+    private final LibraryInput library;
+    private final ArrayList<User> users;
+    private final ArrayList<Playlist> playlists;
+    private final ObjectMapper mapper;
     private int lastTimestamp;
 
     public CommandParser(LibraryInput library, ArrayList<User> users, ObjectMapper mapper) {
@@ -26,9 +25,9 @@ public class CommandParser {
         this.lastTimestamp = 0;
     }
 
-    public User getUser(String username) {
+    public User getUser(CommandInput commandInput) {
         for (User user : users) {
-            if (user.getName().equals(username)) {
+            if (user.getName().equals(commandInput.getUsername())) {
                 return user;
             }
         }
@@ -45,13 +44,14 @@ public class CommandParser {
         JsonNode output = null;
         String command = commandInput.getCommand();
         update(commandInput.getTimestamp() - lastTimestamp);
+        User currentUser = getUser(commandInput);
         if (command.equals("search")) {
             Searcher searcher = Searcher.getInstance();
-            getUser(commandInput.getUsername()).stop();
+            getUser(commandInput).stop();
             if (commandInput.getType().equals("song")) {
                 SearchOutput searchOutput = new SearchOutput(commandInput);
                 ArrayList<SongInput> list = searcher.searchSong(commandInput.getFilters(), library.getSongs());
-                getUser(commandInput.getUsername()).setSearchedSongs(list);
+                currentUser.setSearchedSongs(list);
                 searchOutput.setMessage("Search returned " + list.size() + " results");
                 ArrayList<String> results = new ArrayList<>();
                 for (SongInput song : list) {
@@ -62,7 +62,7 @@ public class CommandParser {
             } else if (commandInput.getType().equals("podcast")) {
                 SearchOutput searchOutput = new SearchOutput(commandInput);
                 ArrayList<PodcastInput> list = searcher.searchPodcast(commandInput.getFilters(), library.getPodcasts());
-                getUser(commandInput.getUsername()).setSearchedPodcasts(list);
+                currentUser.setSearchedPodcasts(list);
                 searchOutput.setMessage("Search returned " + list.size() + " results");
                 ArrayList<String> results = new ArrayList<>();
                 for (PodcastInput podcast : list) {
@@ -72,8 +72,8 @@ public class CommandParser {
                 output = mapper.valueToTree(searchOutput);
             } else {
                 SearchOutput searchOutput = new SearchOutput(commandInput);
-                ArrayList<Playlist> list = searcher.searchPlaylist(commandInput.getFilters(), playlists);
-                getUser(commandInput.getUsername()).setSearchedPlaylists(list);
+                ArrayList<Playlist> list = searcher.searchPlaylist(commandInput.getFilters(), playlists, commandInput.getUsername());
+                currentUser.setSearchedPlaylists(list);
                 searchOutput.setMessage("Search returned " + list.size() + " results");
                 ArrayList<String> results = new ArrayList<>();
                 for (Playlist playlist : list) {
@@ -83,24 +83,24 @@ public class CommandParser {
                 output = mapper.valueToTree(searchOutput);
             }
         } else if (command.equals("select")) {
-            SelectOutput selectOutput = new SelectOutput(commandInput);
-            selectOutput.setMessage(getUser(commandInput.getUsername()).select(commandInput.getItemNumber()));
+            MessageOutput selectOutput = new MessageOutput(commandInput);
+            selectOutput.setMessage(currentUser.select(commandInput.getItemNumber()));
             output = mapper.valueToTree(selectOutput);
         } else if (command.equals("load")) {
-            LoadOutput loadOutput = new LoadOutput(commandInput);
-            loadOutput.setMessage(getUser(commandInput.getUsername()).load());
+            MessageOutput loadOutput = new MessageOutput(commandInput);
+            loadOutput.setMessage(currentUser.load());
             output = mapper.valueToTree(loadOutput);
         } else if (command.equals("playPause")) {
-            PlayPauseOutput playPauseOutput = new PlayPauseOutput(commandInput);
-            playPauseOutput.setMessage(getUser(commandInput.getUsername()).playPause());
+            MessageOutput playPauseOutput = new MessageOutput(commandInput);
+            playPauseOutput.setMessage(currentUser.playPause());
             output = mapper.valueToTree(playPauseOutput);
         } else if (command.equals("status")) {
-            Stats stats = getUser(commandInput.getUsername()).getPlayer().status();
+            Stats stats = currentUser.getPlayer().status();
             StatsOutput status = new StatsOutput(commandInput, stats);
             output = mapper.valueToTree(status);
         } else if (command.equals("createPlaylist")) {
-            LoadOutput createPlaylistOutput = new LoadOutput(commandInput);
-            Playlist playlist = getUser(commandInput.getUsername()).createPlaylist(commandInput.getPlaylistName());
+            MessageOutput createPlaylistOutput = new MessageOutput(commandInput);
+            Playlist playlist = currentUser.createPlaylist(commandInput.getPlaylistName());
             if (playlist == null) {
                 createPlaylistOutput.setMessage("A playlist with the same name already exists.");
             } else {
@@ -109,29 +109,53 @@ public class CommandParser {
             }
             output = mapper.valueToTree(createPlaylistOutput);
         } else if (command.equals("addRemoveInPlaylist")) {
-            LoadOutput addRemoveOutput = new LoadOutput(commandInput);
-            addRemoveOutput.setMessage(getUser(commandInput.getUsername()).addRemoveInPlaylist(commandInput.getPlaylistId()));
+            MessageOutput addRemoveOutput = new MessageOutput(commandInput);
+            addRemoveOutput.setMessage(currentUser.addRemoveInPlaylist(commandInput.getPlaylistId()));
             output = mapper.valueToTree(addRemoveOutput);
         } else if (command.equals("like")) {
-            LoadOutput likeOutput = new LoadOutput(commandInput);
-            likeOutput.setMessage(getUser(commandInput.getUsername()).like());
+            MessageOutput likeOutput = new MessageOutput(commandInput);
+            likeOutput.setMessage(currentUser.like());
             output = mapper.valueToTree(likeOutput);
         } else if (command.equals("showPlaylists")) {
             SearchPlaylistOutput showPlaylistOutput = new SearchPlaylistOutput(commandInput);
-            showPlaylistOutput.setResult(getUser(commandInput.getUsername()).showPlaylists());
+            showPlaylistOutput.setResult(currentUser.showPlaylists());
             output = mapper.valueToTree(showPlaylistOutput);
         } else if (command.equals("showPreferredSongs")) {
             ShowLikedOutput likedOutput = new ShowLikedOutput(commandInput);
-            likedOutput.setResult(getUser(commandInput.getUsername()).showPreferredSongs());
+            likedOutput.setResult(currentUser.showPreferredSongs());
             output = mapper.valueToTree(likedOutput);
         } else if (command.equals("repeat")) {
-            LoadOutput repeatOutput = new LoadOutput(commandInput);
-            repeatOutput.setMessage(getUser(commandInput.getUsername()).repeat());
+            MessageOutput repeatOutput = new MessageOutput(commandInput);
+            repeatOutput.setMessage(currentUser.repeat());
             output = mapper.valueToTree(repeatOutput);
         } else if (command.equals("shuffle")) {
-            LoadOutput shuffleOutput = new LoadOutput(commandInput);
-            shuffleOutput.setMessage(getUser(commandInput.getUsername()).shuffle(commandInput.getSeed()));
+            MessageOutput shuffleOutput = new MessageOutput(commandInput);
+            shuffleOutput.setMessage(currentUser.shuffle(commandInput.getSeed()));
             output = mapper.valueToTree(shuffleOutput);
+        } else if (command.equals("prev")) {
+            MessageOutput prevOutput = new MessageOutput(commandInput);
+            prevOutput.setMessage(currentUser.prev());
+            output = mapper.valueToTree(prevOutput);
+        } else if (command.equals("forward")) {
+            MessageOutput forwardOutput = new MessageOutput(commandInput);
+            forwardOutput.setMessage(currentUser.forward());
+            output = mapper.valueToTree(forwardOutput);
+        } else if (command.equals("backward")) {
+            MessageOutput backwardOutput = new MessageOutput(commandInput);
+            backwardOutput.setMessage(currentUser.backward());
+            output = mapper.valueToTree(backwardOutput);
+        } else if (command.equals("next")) {
+            MessageOutput nextOutput = new MessageOutput(commandInput);
+            nextOutput.setMessage(currentUser.next());
+            output = mapper.valueToTree(nextOutput);
+        } else if (command.equals("switchVisibility")) {
+            MessageOutput visibilityOutput = new MessageOutput(commandInput);
+            visibilityOutput.setMessage(currentUser.switchVisibility(commandInput.getPlaylistId()));
+            output = mapper.valueToTree(visibilityOutput);
+        } else if (command.equals("follow")) {
+            MessageOutput followOutput = new MessageOutput(commandInput);
+            followOutput.setMessage(currentUser.follow());
+            output = mapper.valueToTree(followOutput);
         }
         lastTimestamp = commandInput.getTimestamp();
         return output;

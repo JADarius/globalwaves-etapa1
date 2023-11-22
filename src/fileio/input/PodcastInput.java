@@ -1,7 +1,10 @@
 package fileio.input;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 
+@Getter
 public final class PodcastInput {
     private String name;
     private String owner;
@@ -10,24 +13,12 @@ public final class PodcastInput {
     public PodcastInput() {
     }
 
-    public String getName() {
-        return name;
-    }
-
     public void setName(final String name) {
         this.name = name;
     }
 
-    public String getOwner() {
-        return owner;
-    }
-
     public void setOwner(final String owner) {
         this.owner = owner;
-    }
-
-    public ArrayList<EpisodeInput> getEpisodes() {
-        return episodes;
     }
 
     public void setEpisodes(final ArrayList<EpisodeInput> episodes) {

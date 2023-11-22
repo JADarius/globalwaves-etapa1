@@ -1,11 +1,13 @@
 package utils;
 
 import fileio.input.PodcastInput;
+import lombok.Getter;
 
+@Getter
 public class PodcastSave {
-    private PodcastInput podcast;
-    private int remainedTime;
-    private int currentItem;
+    private final PodcastInput podcast;
+    private final int remainedTime;
+    private final int currentItem;
 
     public PodcastSave(PodcastInput podcast, int remainedTime, int currentItem) {
         this.podcast = podcast;
@@ -13,15 +15,4 @@ public class PodcastSave {
         this.currentItem = currentItem;
     }
 
-    public PodcastInput getPodcast() {
-        return podcast;
-    }
-
-    public int getRemainedTime() {
-        return remainedTime;
-    }
-
-    public int getCurrentItem() {
-        return currentItem;
-    }
 }

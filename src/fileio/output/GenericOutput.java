@@ -1,5 +1,8 @@
 package fileio.output;
 
+import lombok.Getter;
+
+@Getter
 public class GenericOutput {
     protected String command;
     protected String user;
@@ -7,24 +10,12 @@ public class GenericOutput {
 
     public GenericOutput() {}
 
-    public String getCommand() {
-        return command;
-    }
-
     public void setCommand(String command) {
         this.command = command;
     }
 
-    public String getUser() {
-        return user;
-    }
-
     public void setUser(String user) {
         this.user = user;
-    }
-
-    public int getTimestamp() {
-        return timestamp;
     }
 
     public void setTimestamp(int timestamp) {
