@@ -9,72 +9,73 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-public class Player {
-    @Getter
+@Getter
+public final class Player {
+    private static final int SONG_PLAYER = 0;
+    private static final int PODCAST_PLAYER = 1;
+    private static final int PLAYLIST_PLAYER = 2;
+    private static final int TIME_SKIP = 90;
+    private static final int REPEAT_TYPES = 3;
     private SongInput song = null;
-    @Getter
     private PodcastInput podcast = null;
-    @Getter
     private Playlist playlist = null;
-    @Getter
     private EpisodeInput episode = null;
-    @Getter
     private int remainedTime;
     private boolean paused;
     private int repeat;
-    @Getter
-    private boolean finshed;
-    @Getter
+    private boolean finished;
     private int type; // 0 - song, 1 - podcast, 2 - playlist
     private ArrayList<Integer> shuffleOrder;
-    @Getter
     private boolean shuffle;
-    @Getter
     private int currentItem;
 
 
     private Player() {
         this.paused = false;
         this.repeat = 0;
-        this.finshed = false;
+        this.finished = false;
         this.shuffle = false;
         this.currentItem = 0;
     }
 
-    public Player(SongInput song) {
+    public Player(final SongInput song) {
         this();
         this.song = song;
         this.remainedTime = song.getDuration();
-        this.type = 0;
+        this.type = SONG_PLAYER;
     }
 
-    public Player(PodcastInput podcast) {
+    public Player(final PodcastInput podcast) {
         this();
         this.podcast = podcast;
         this.episode = podcast.getEpisodes().get(0);
         this.remainedTime = episode.getDuration();
-        this.type = 1;
+        this.type = PODCAST_PLAYER;
     }
 
-    public Player(PodcastSave save) {
+    public Player(final PodcastSave save) {
         this();
         this.podcast = save.getPodcast();
         this.currentItem = save.getCurrentItem();
         this.episode = podcast.getEpisodes().get(currentItem);
         this.remainedTime = save.getRemainedTime();
-        this.type = 1;
+        this.type = PODCAST_PLAYER;
     }
 
-    public Player(Playlist playlist) {
+    public Player(final Playlist playlist) {
         this();
         this.playlist = playlist;
         this.song = playlist.getSongs().get(0);
         this.remainedTime = song.getDuration();
-        this.type = 2;
+        this.type = PLAYLIST_PLAYER;
     }
 
+    /**
+     * Switches between the play and pause modes
+     * @return Returns a string representing the result.
+     */
     public String playPause() {
-        if (finshed) {
+        if (finished) {
             return "Please load a source before attempting to pause or resume playback.";
         }
         paused = !paused;
@@ -85,20 +86,27 @@ public class Player {
         }
     }
 
+    /**
+     * Switches between the repeat modes
+     */
     public void repeat() {
-        repeat = (repeat + 1) % 3;
+        repeat = (repeat + 1) % REPEAT_TYPES;
     }
 
+    /**
+     * Updates the player with how much time has elapsed from the last command
+     * @param difference the amount of time elapsed
+     */
     public void update(int difference) {
-        if (!paused && !finshed) {
+        if (!paused && !finished) {
             while (remainedTime < difference) {
                 difference -= remainedTime;
                 next();
-                if (finshed) {
+                if (finished) {
                     break;
                 }
             }
-            if (!finshed && difference > 0) {
+            if (!finished && difference > 0) {
                 remainedTime -= difference;
                 if (remainedTime == 0) {
                     next();
@@ -107,11 +115,15 @@ public class Player {
         }
     }
 
+    /**
+     * Gets the status of the player
+     * @return The status of the player
+     */
     public Stats status() {
-        if (finshed) {
+        if (finished) {
             return new Stats("", remainedTime, repeat, shuffle, paused, type);
         } else {
-            if (type == 0 || type == 2) {
+            if (type == SONG_PLAYER || type == PLAYLIST_PLAYER) {
                 return new Stats(song.getName(), remainedTime, repeat, shuffle, paused, type);
             } else {
                 return new Stats(episode.getName(), remainedTime, repeat, shuffle, paused, type);
@@ -119,7 +131,11 @@ public class Player {
         }
     }
 
-    public void shuffle(int seed) {
+    /**
+     * Changes between the normal and shuffle mode of the playlist
+     * @param seed The seed which is used in the randomization
+     */
+    public void shuffle(final int seed) {
         if (!shuffle) {
             Random rand = new Random(seed);
             shuffleOrder = new ArrayList<>();
@@ -128,7 +144,7 @@ public class Player {
             }
             Collections.shuffle(shuffleOrder, rand);
             shuffle = true;
-            for(int index = 0; index < playlist.getSongs().size(); index++) {
+            for (int index = 0; index < playlist.getSongs().size(); index++) {
                 if (shuffleOrder.get(index) == currentItem) {
                     currentItem = index;
                     break;
@@ -144,9 +160,12 @@ public class Player {
         }
     }
 
+    /**
+     * Makes the player change to the next song/episode if possible
+     */
     public void next() {
         switch (type) {
-            case 0:
+            case SONG_PLAYER:
                 if (repeat == 1) {
                     remainedTime = song.getDuration();
                     repeat = 0;
@@ -156,7 +175,7 @@ public class Player {
                     stop();
                 }
                 break;
-            case 1:
+            case PODCAST_PLAYER:
                 if (currentItem == podcast.getEpisodes().size() - 1) {
                     if (repeat == 1) {
                         remainedTime = episode.getDuration();
@@ -172,8 +191,9 @@ public class Player {
                     paused = false;
                 }
                 break;
-            case 2:
-                if (currentItem == playlist.getSongs().size() - 1 || (shuffle && currentItem == shuffleOrder.size() - 1)) {
+            case PLAYLIST_PLAYER:
+                if (currentItem == playlist.getSongs().size() - 1
+                        || (shuffle && currentItem == shuffleOrder.size() - 1)) {
                     if (repeat == 1) {
                         if (shuffle) {
                             song = playlist.getSongs().get(shuffleOrder.get(0));
@@ -199,12 +219,18 @@ public class Player {
                     paused = false;
                 }
                 break;
+            default:
+                break;
         }
     }
 
+    /**
+     * Makes the player change to the previous song/episode
+     * @return The name of the song/episode that is playing after the operation
+     */
     public String prev() {
         paused = false;
-        if (type == 1) {
+        if (type == PODCAST_PLAYER) {
             if (remainedTime < episode.getDuration()) {
                 remainedTime = episode.getDuration();
             } else {
@@ -231,6 +257,9 @@ public class Player {
         return song.getName() + ".";
     }
 
+    /**
+     * Stops the player and removes any source from it
+     */
     public void stop() {
         episode = null;
         podcast = null;
@@ -239,12 +268,16 @@ public class Player {
         paused = true;
         remainedTime = 0;
         repeat = 0;
-        finshed = true;
+        finished = true;
         shuffle = false;
     }
 
+    /**
+     * Gets the repeat state
+     * @return a string representing the repeat state
+     */
     public String getRepeatState() {
-        if (type == 2) {
+        if (type == PLAYLIST_PLAYER) {
             switch (repeat) {
                 case 0:
                     return "no repeat.";
@@ -252,6 +285,8 @@ public class Player {
                     return "repeat all.";
                 case 2:
                     return "repeat current song.";
+                default:
+                    return "";
             }
         } else {
             switch (repeat) {
@@ -261,25 +296,32 @@ public class Player {
                     return "repeat once.";
                 case 2:
                     return "repeat infinite.";
+                default:
+                    return "";
             }
         }
-        return "";
     }
 
+    /**
+     * Skips the player 90 seconds
+     */
     public void forward() {
-        if (remainedTime <= 90) {
+        if (remainedTime <= TIME_SKIP) {
             next();
             remainedTime = episode.getDuration();
         } else {
-            remainedTime -= 90;
+            remainedTime -= TIME_SKIP;
         }
     }
 
+    /**
+     * Rewinds the player 90 seconds or to the start of the song/episode if 90 seconds didn't pass
+     */
     public void backward() {
-        if (remainedTime + 90 >= episode.getDuration()) {
+        if (remainedTime + TIME_SKIP >= episode.getDuration()) {
             remainedTime = episode.getDuration();
         } else {
-            remainedTime = remainedTime + 90;
+            remainedTime = remainedTime + TIME_SKIP;
         }
     }
 }

@@ -9,7 +9,6 @@ import fileio.input.CommandInput;
 import fileio.input.LibraryInput;
 import fileio.input.SongInput;
 import fileio.input.UserInput;
-import fileio.output.SearchOutput;
 import utils.CommandParser;
 import utils.Song;
 import utils.User;
@@ -82,7 +81,8 @@ public final class Main {
         ArrayNode outputs = objectMapper.createArrayNode();
 
         // TODO add your implementation
-        CommandInput[] commands = objectMapper.readValue(new File("input/" + filePathInput), CommandInput[].class);
+        CommandInput[] commands = objectMapper.readValue(new File("input/" + filePathInput),
+                CommandInput[].class);
         ArrayList<User> users = new ArrayList<>();
         for (UserInput user : library.getUsers()) {
             users.add(new User(user.getUsername()));

@@ -3,14 +3,15 @@ package utils;
 import lombok.Getter;
 
 @Getter
-public class Stats {
+public final class Stats {
     private String name;
     private int remainedTime;
     private String repeat;
     private boolean shuffle;
     private boolean paused;
 
-    public Stats(String name, int remainedTime, int repeat, boolean shuffle, boolean paused, int type) {
+    public Stats(final String name, final int remainedTime,
+                 final int repeat, final boolean shuffle, final boolean paused, final int type) {
         this.name = name;
         this.remainedTime = remainedTime;
         this.shuffle = shuffle;
@@ -26,6 +27,8 @@ public class Stats {
                 case 2:
                     this.repeat = "Repeat Current Song";
                     break;
+                default:
+                    break;
             }
         } else {
             switch (repeat) {
@@ -38,27 +41,29 @@ public class Stats {
                 case 2:
                     this.repeat = "Repeat Infinite";
                     break;
+                default:
+                    break;
             }
         }
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
-    public void setRemainedTime(int remainedTime) {
+    public void setRemainedTime(final int remainedTime) {
         this.remainedTime = remainedTime;
     }
 
-    public void setRepeat(String repeat) {
+    public void setRepeat(final String repeat) {
         this.repeat = repeat;
     }
 
-    public void setShuffle(boolean shuffle) {
+    public void setShuffle(final boolean shuffle) {
         this.shuffle = shuffle;
     }
 
-    public void setPaused(boolean paused) {
+    public void setPaused(final boolean paused) {
         this.paused = paused;
     }
 }

@@ -6,20 +6,21 @@ import fileio.input.SongInput;
 
 import java.util.ArrayList;
 
-public class Searcher {
-    private static Searcher instance = null;
+public final class Searcher {
+    private static final int MAX_FINDS = 5;
+    public Searcher() {
 
-    private Searcher() {}
-
-    public static Searcher getInstance() {
-        if (instance == null) {
-            instance = new Searcher();
-        }
-        return instance;
     }
 
-    public ArrayList<SongInput> searchSong(FilterInput filters, ArrayList<SongInput> songs) {
-        int song_count = 0;
+    /**
+     * Searches for a song using the filters
+     * @param filters The filters used to search
+     * @param songs The list of songs in which the search will take place
+     * @return A list of the first 5 songs that match all the filters
+     */
+    public ArrayList<SongInput> searchSong(final FilterInput filters,
+                                           final ArrayList<SongInput> songs) {
+        int songCount = 0;
         ArrayList<SongInput> list = new ArrayList<SongInput>();
         for (SongInput song : songs) {
             if (filters.getName() != null && !song.getName().startsWith(filters.getName())) {
@@ -40,10 +41,12 @@ public class Searcher {
                     continue;
                 }
             }
-            if (filters.getLyrics() != null && !song.getLyrics().toLowerCase().contains(filters.getLyrics().toLowerCase())) {
+            if (filters.getLyrics() != null
+                    && !song.getLyrics().toLowerCase().contains(filters.getLyrics().toLowerCase())) {
                 continue;
             }
-            if (filters.getGenre() != null && !song.getGenre().toUpperCase().equals(filters.getGenre().toUpperCase())) {
+            if (filters.getGenre() != null
+                    && !song.getGenre().equalsIgnoreCase(filters.getGenre())) {
                 continue;
             }
             if (filters.getReleaseYear() != null) {
@@ -60,22 +63,32 @@ public class Searcher {
                             continue;
                         }
                         break;
+                    default:
+                        break;
                 }
             }
-            if (filters.getArtist() != null && !song.getArtist().equals(filters.getArtist())) {
+            if (filters.getArtist() != null
+                    && !song.getArtist().equals(filters.getArtist())) {
                 continue;
             }
             list.add(song);
-            song_count += 1;
-            if (song_count == 5) {
+            songCount += 1;
+            if (songCount == MAX_FINDS) {
                 break;
             }
         }
         return list;
     }
 
-    public ArrayList<PodcastInput> searchPodcast(FilterInput filters, ArrayList<PodcastInput> podcasts) {
-        int podcast_count = 0;
+    /**
+     * Searches for a podcast using the filters
+     * @param filters The filters used to search
+     * @param podcasts The list of podcasts in which the search will take place
+     * @return A list of the first 5 podcasts that match all the filters
+     */
+    public ArrayList<PodcastInput> searchPodcast(final FilterInput filters,
+                                                 final ArrayList<PodcastInput> podcasts) {
+        int podcastCount = 0;
         ArrayList<PodcastInput> list = new ArrayList<PodcastInput>();
         for (PodcastInput podcast : podcasts) {
             if (filters.getName() != null && !podcast.getName().contains(filters.getName())) {
@@ -85,19 +98,29 @@ public class Searcher {
                 continue;
             }
             list.add(podcast);
-            podcast_count += 1;
-            if (podcast_count == 5) {
+            podcastCount += 1;
+            if (podcastCount == MAX_FINDS) {
                 break;
             }
         }
         return list;
     }
 
-    public ArrayList<Playlist> searchPlaylist(FilterInput filters, ArrayList<Playlist> playlists, String username) {
-        int playlist_count = 0;
+    /**
+     * Searches for a playlist using the filters
+     * @param filters The filters used to search
+     * @param playlists The list of playlists in which the search will take place
+     * @param username Username used to check if the playlist can be accessed by the user
+     * @return A list of the first 5 playlists that match all the filters
+     */
+    public ArrayList<Playlist> searchPlaylist(final FilterInput filters,
+                                              final ArrayList<Playlist> playlists,
+                                              final String username) {
+        int playlistCount = 0;
         ArrayList<Playlist> list = new ArrayList<>();
         for (Playlist playlist : playlists) {
-            if (playlist.getVisibility().equals("private") && !playlist.getOwner().equals(username)) {
+            if (playlist.getVisibility().equals("private")
+                    && !playlist.getOwner().equals(username)) {
                 continue;
             }
             if (filters.getName() != null && !playlist.getName().contains(filters.getName())) {
@@ -107,8 +130,8 @@ public class Searcher {
                 continue;
             }
             list.add(playlist);
-            playlist_count += 1;
-            if (playlist_count == 5) {
+            playlistCount += 1;
+            if (playlistCount == MAX_FINDS) {
                 break;
             }
         }

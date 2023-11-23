@@ -2,12 +2,13 @@ package utils;
 
 import fileio.input.SongInput;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 @Getter
-public class Playlist {
+@Setter
+public final class Playlist {
     private String owner;
     private String name;
     private ArrayList<SongInput> songs;
@@ -15,7 +16,7 @@ public class Playlist {
     private int followers;
     private int creationTime;
 
-    public Playlist(String owner, String name, int creationTime) {
+    public Playlist(final String owner, final String name, final int creationTime) {
         this.owner = owner;
         this.name = name;
         this.songs = new ArrayList<>();
@@ -24,6 +25,9 @@ public class Playlist {
         this.creationTime = creationTime;
     }
 
+    /**
+     * Switches the visibility mode of the playlist
+     */
     public void switchVisibility() {
         if (visibility.equals("public")) {
             visibility = "private";
@@ -32,7 +36,12 @@ public class Playlist {
         }
     }
 
-    public String addRemoveInPlaylist(SongInput song) {
+    /**
+     * Adds a song to the playlist or removes it if already there
+     * @param song The song to be added/removed
+     * @return A string that specifies what operation took place
+     */
+    public String addRemoveInPlaylist(final SongInput song) {
         if (songs.contains(song)) {
             songs.remove(song);
             return "Successfully removed from playlist.";
@@ -42,28 +51,17 @@ public class Playlist {
         }
     }
 
+    /**
+     * Increases the follower count
+     */
     public void addFollower() {
         followers++;
     }
 
+    /**
+     * Decreases the follower count
+     */
     public void removeFollower() {
         followers--;
     }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setSongs(ArrayList<SongInput> songs) {
-        this.songs = songs;
-    }
-
-    public void setFollowers(int followers) {
-        this.followers = followers;
-    }
-
 }
