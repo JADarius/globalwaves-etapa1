@@ -44,10 +44,17 @@ public class User {
         followedPlaylists = new ArrayList<>();
     }
 
+    private void selectFail() {
+        selectedPlaylist = null;
+        selectedPodcast = null;
+        selectedSong = null;
+    }
+
     public String select(int index) {
         if (searchedForSongs) {
             index--;
             if (index >= searchedSongs.size()) {
+                selectFail();
                 return "The selected ID is too high.";
             } else {
                 selectedSong = searchedSongs.get(index);
@@ -61,6 +68,7 @@ public class User {
         if (searchedForPodcasts) {
             index--;
             if (index >= searchedPodcasts.size()) {
+                selectFail();
                 return "The selected ID is too high.";
             } else {
                 selectedPodcast = searchedPodcasts.get(index);
@@ -74,6 +82,7 @@ public class User {
         if (searchedForPlaylists) {
             index--;
             if (index >= searchedPlaylists.size()) {
+                selectFail();
                 return "The selected ID is too high.";
             } else {
                 selectedPlaylist = searchedPlaylists.get(index);
@@ -301,10 +310,12 @@ public class User {
         if (followedPlaylists.contains(selectedPlaylist)) {
             followedPlaylists.remove(selectedPlaylist);
             selectedPlaylist.removeFollower();
+            selectedPlaylist = null;
             return "Playlist unfollowed successfully.";
         } else {
             followedPlaylists.add(selectedPlaylist);
             selectedPlaylist.addFollower();
+            selectedPlaylist = null;
             return "Playlist followed successfully.";
         }
     }

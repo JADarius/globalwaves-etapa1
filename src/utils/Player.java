@@ -14,6 +14,7 @@ public class Player {
     private SongInput song = null;
     @Getter
     private PodcastInput podcast = null;
+    @Getter
     private Playlist playlist = null;
     @Getter
     private EpisodeInput episode = null;
@@ -32,7 +33,7 @@ public class Player {
     private int currentItem;
 
 
-    public Player() {
+    private Player() {
         this.paused = false;
         this.repeat = 0;
         this.finshed = false;
@@ -100,8 +101,7 @@ public class Player {
             if (!finshed && difference > 0) {
                 remainedTime -= difference;
                 if (remainedTime == 0) {
-                    finshed = true;
-                    paused = true;
+                    next();
                 }
             }
         }
@@ -136,6 +136,11 @@ public class Player {
             }
         } else {
             shuffle = false;
+            for (int index = 0; index < playlist.getSongs().size(); index++) {
+                if (playlist.getSongs().get(index).getName().equals(song.getName())) {
+                    currentItem = index;
+                }
+            }
         }
     }
 
@@ -164,6 +169,7 @@ public class Player {
                 } else {
                     episode = podcast.getEpisodes().get(++currentItem);
                     remainedTime = episode.getDuration();
+                    paused = false;
                 }
                 break;
             case 2:
@@ -175,18 +181,22 @@ public class Player {
                             song = playlist.getSongs().get(0);
                         }
                         remainedTime = song.getDuration();
+                        currentItem = 0;
                     } else if (repeat == 2) {
                         remainedTime = song.getDuration();
                     } else {
                         stop();
                     }
                 } else {
-                    if (shuffle) {
-                        song = playlist.getSongs().get(shuffleOrder.get(++currentItem));
-                    } else {
-                        song = playlist.getSongs().get(++currentItem);
+                    if (repeat != 2) {
+                        if (shuffle) {
+                            song = playlist.getSongs().get(shuffleOrder.get(++currentItem));
+                        } else {
+                            song = playlist.getSongs().get(++currentItem);
+                        }
                     }
                     remainedTime = song.getDuration();
+                    paused = false;
                 }
                 break;
         }
@@ -199,8 +209,7 @@ public class Player {
                 remainedTime = episode.getDuration();
             } else {
                 if (currentItem != 0) {
-                    currentItem--;
-                    episode = podcast.getEpisodes().get(currentItem);
+                    episode = podcast.getEpisodes().get(--currentItem);
                     remainedTime = episode.getDuration();
                 }
             }
@@ -210,8 +219,11 @@ public class Player {
                 remainedTime = song.getDuration();
             } else {
                 if (currentItem != 0) {
-                    currentItem--;
-                    song = playlist.getSongs().get(currentItem);
+                    if (shuffle) {
+                        song = playlist.getSongs().get(shuffleOrder.get(--currentItem));
+                    } else {
+                        song = playlist.getSongs().get(--currentItem);
+                    }
                     remainedTime = song.getDuration();
                 }
             }

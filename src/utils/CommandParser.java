@@ -39,6 +39,9 @@ public class CommandParser {
 
     public void update(int difference) {
         for (User user : users) {
+//            if (user.getName().equals("emily30")) {
+//                System.out.println("debug");
+//            }
             user.update(difference);
         }
     }
@@ -48,6 +51,16 @@ public class CommandParser {
         String command = commandInput.getCommand();
         update(commandInput.getTimestamp() - lastTimestamp);
         User currentUser = getUser(commandInput);
+        // Debug
+//        if (currentUser.getName().equals("grace25") && currentUser.getPlayer() != null && currentUser.getPlayer().getType() == 2) {
+//            System.out.println(commandInput.getTimestamp());
+//            System.out.println("Playing: " + currentUser.getPlayer().getSong().getName());
+//            System.out.println("CurrentItem: " + currentUser.getPlayer().getCurrentItem());
+//            System.out.println("Shuffle: " + currentUser.getPlayer().isShuffle());
+//            for (SongInput song : currentUser.getPlayer().getPlaylist().getSongs()) {
+//                System.out.println(song.getName());
+//            }
+//        }
         if (command.equals("search")) {
             Searcher searcher = Searcher.getInstance();
             getUser(commandInput).stop();
