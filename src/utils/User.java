@@ -1,36 +1,42 @@
 package utils;
 
-import fileio.input.PodcastInput;
-import fileio.input.SongInput;
+import fileio.input.UserInput;
 import fileio.output.PlaylistOutput;
 import lombok.Getter;
+import utils.library.Playlist;
+import utils.library.Podcast;
+import utils.library.Song;
 
 import java.util.ArrayList;
 
 public final class User {
     @Getter
     private final String name;
-    private final ArrayList<SongInput> likedSongs;
+    private int age;
+    private String city;
+    private final ArrayList<Song> likedSongs;
     private final ArrayList<Playlist> followedPlaylists;
     @Getter
-    private ArrayList<PodcastInput> searchedPodcasts;
+    private ArrayList<Podcast> searchedPodcasts;
     private final ArrayList<PodcastSave> savedPodcasts;
     @Getter
     private ArrayList<Playlist> searchedPlaylists;
     @Getter
-    private ArrayList<SongInput> searchedSongs;
+    private ArrayList<Song> searchedSongs;
     private final ArrayList<Playlist> playlists;
     private boolean searchedForSongs;
     private boolean searchedForPodcasts;
     private boolean searchedForPlaylists;
-    private SongInput selectedSong;
-    private PodcastInput selectedPodcast;
+    private Song selectedSong;
+    private Podcast selectedPodcast;
     private Playlist selectedPlaylist;
     @Getter
     private Player player = null;
 
-    public User(final String name) {
-        this.name = name;
+    public User(final UserInput user) {
+        this.name = user.getUsername();
+        this.city = user.getCity();
+        this.age = user.getAge();
         searchedSongs = null;
         searchedPodcasts = null;
         searchedPlaylists = null;
@@ -252,7 +258,7 @@ public final class User {
      */
     public ArrayList<String> showPreferredSongs() {
         ArrayList<String> output = new ArrayList<>();
-        for (SongInput song : likedSongs) {
+        for (Song song : likedSongs) {
             output.add(song.getName());
         }
         return output;
@@ -411,7 +417,7 @@ public final class User {
      * Setter for searchedSongs
      * @param searchedSongs The searched songs
      */
-    public void setSearchedSongs(final ArrayList<SongInput> searchedSongs) {
+    public void setSearchedSongs(final ArrayList<Song> searchedSongs) {
         this.searchedSongs = searchedSongs;
         this.searchedForSongs = true;
         this.searchedForPlaylists = false;
@@ -422,7 +428,7 @@ public final class User {
      * Setter for searchedPodcasts
      * @param searchedPodcasts The searched podcasts
      */
-    public void setSearchedPodcasts(final ArrayList<PodcastInput> searchedPodcasts) {
+    public void setSearchedPodcasts(final ArrayList<Podcast> searchedPodcasts) {
         this.searchedPodcasts = searchedPodcasts;
         this.searchedForPodcasts = true;
         this.searchedForPlaylists = false;

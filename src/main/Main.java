@@ -8,10 +8,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import fileio.input.CommandInput;
 import fileio.input.LibraryInput;
 import fileio.input.SongInput;
-import fileio.input.UserInput;
 import utils.CommandParser;
-import utils.Song;
-import utils.User;
+import utils.library.Song;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,18 +78,14 @@ public final class Main {
 
         ArrayNode outputs = objectMapper.createArrayNode();
 
-        // TODO add your implementation
         CommandInput[] commands = objectMapper.readValue(new File("input/" + filePathInput),
                 CommandInput[].class);
-        ArrayList<User> users = new ArrayList<>();
-        for (UserInput user : library.getUsers()) {
-            users.add(new User(user.getUsername()));
-        }
+
         ArrayList<Song> songs = new ArrayList<>();
         for (SongInput song : library.getSongs()) {
             songs.add(new Song(song));
         }
-        CommandParser parser = new CommandParser(library, users, objectMapper, songs);
+        CommandParser parser = new CommandParser(library, objectMapper, songs);
         for (CommandInput command : commands) {
             outputs.add(parser.parseCommand(command));
         }

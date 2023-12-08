@@ -1,6 +1,5 @@
-package utils;
+package utils.library;
 
-import fileio.input.SongInput;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +10,7 @@ import java.util.ArrayList;
 public final class Playlist {
     private String owner;
     private String name;
-    private ArrayList<SongInput> songs;
+    private ArrayList<Song> songs;
     private String visibility;
     private int followers;
     private int creationTime;
@@ -41,7 +40,7 @@ public final class Playlist {
      * @param song The song to be added/removed
      * @return A string that specifies what operation took place
      */
-    public String addRemoveInPlaylist(final SongInput song) {
+    public String addRemoveInPlaylist(final Song song) {
         if (songs.contains(song)) {
             songs.remove(song);
             return "Successfully removed from playlist.";

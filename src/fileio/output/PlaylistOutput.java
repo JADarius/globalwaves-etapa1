@@ -1,9 +1,9 @@
 package fileio.output;
 
-import fileio.input.SongInput;
 import lombok.Getter;
 import lombok.Setter;
-import utils.Playlist;
+import utils.library.Playlist;
+import utils.library.Song;
 
 import java.util.ArrayList;
 
@@ -20,7 +20,7 @@ public final class PlaylistOutput {
         this.visibility = playlist.getVisibility();
         this.followers = playlist.getFollowers();
         this.songs = new ArrayList<>();
-        for (SongInput song : playlist.getSongs()) {
+        for (Song song : playlist.getSongs()) {
             this.songs.add(song.getName());
         }
     }

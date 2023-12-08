@@ -1,8 +1,9 @@
 package utils;
 
 import fileio.input.FilterInput;
-import fileio.input.PodcastInput;
-import fileio.input.SongInput;
+import utils.library.Playlist;
+import utils.library.Podcast;
+import utils.library.Song;
 
 import java.util.ArrayList;
 
@@ -18,11 +19,11 @@ public final class Searcher {
      * @param songs The list of songs in which the search will take place
      * @return A list of the first 5 songs that match all the filters
      */
-    public ArrayList<SongInput> searchSong(final FilterInput filters,
-                                           final ArrayList<SongInput> songs) {
+    public ArrayList<Song> searchSong(final FilterInput filters,
+                                      final ArrayList<Song> songs) {
         int songCount = 0;
-        ArrayList<SongInput> list = new ArrayList<SongInput>();
-        for (SongInput song : songs) {
+        ArrayList<Song> list = new ArrayList<Song>();
+        for (Song song : songs) {
             if (filters.getName() != null && !song.getName().startsWith(filters.getName())) {
                 continue;
             }
@@ -86,11 +87,11 @@ public final class Searcher {
      * @param podcasts The list of podcasts in which the search will take place
      * @return A list of the first 5 podcasts that match all the filters
      */
-    public ArrayList<PodcastInput> searchPodcast(final FilterInput filters,
-                                                 final ArrayList<PodcastInput> podcasts) {
+    public ArrayList<Podcast> searchPodcast(final FilterInput filters,
+                                            final ArrayList<Podcast> podcasts) {
         int podcastCount = 0;
-        ArrayList<PodcastInput> list = new ArrayList<PodcastInput>();
-        for (PodcastInput podcast : podcasts) {
+        ArrayList<Podcast> list = new ArrayList<Podcast>();
+        for (Podcast podcast : podcasts) {
             if (filters.getName() != null && !podcast.getName().contains(filters.getName())) {
                 continue;
             }

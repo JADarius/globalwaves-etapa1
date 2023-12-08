@@ -1,9 +1,10 @@
 package utils;
 
 import fileio.input.EpisodeInput;
-import fileio.input.PodcastInput;
-import fileio.input.SongInput;
 import lombok.Getter;
+import utils.library.Playlist;
+import utils.library.Podcast;
+import utils.library.Song;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,8 +17,8 @@ public final class Player {
     private static final int PLAYLIST_PLAYER = 2;
     private static final int TIME_SKIP = 90;
     private static final int REPEAT_TYPES = 3;
-    private SongInput song = null;
-    private PodcastInput podcast = null;
+    private Song song = null;
+    private Podcast podcast = null;
     private Playlist playlist = null;
     private EpisodeInput episode = null;
     private int remainedTime;
@@ -38,14 +39,14 @@ public final class Player {
         this.currentItem = 0;
     }
 
-    public Player(final SongInput song) {
+    public Player(final Song song) {
         this();
         this.song = song;
         this.remainedTime = song.getDuration();
         this.type = SONG_PLAYER;
     }
 
-    public Player(final PodcastInput podcast) {
+    public Player(final Podcast podcast) {
         this();
         this.podcast = podcast;
         this.episode = podcast.getEpisodes().get(0);
