@@ -2,6 +2,7 @@ package fileio.output;
 
 import lombok.Getter;
 import lombok.Setter;
+import utils.Enums;
 import utils.library.Playlist;
 import utils.library.Song;
 

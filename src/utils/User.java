@@ -202,7 +202,7 @@ public final class User {
         if (player == null || player.isFinished()) {
             return "Please load a source before adding to or removing from the playlist.";
         }
-        if (player.getType() == 1) {
+        if (player.getType() == Enums.PlayerType.PODCAST) {
             return "The loaded source is not a song.";
         }
         return playlists.get(pid).addRemoveInPlaylist(player.getSong());
@@ -217,7 +217,7 @@ public final class User {
         if (player == null || player.getSong() == null) {
             return "Please load a source before liking or unliking.";
         }
-        if (player.getType() == 1) {
+        if (player.getType() == Enums.PlayerType.PODCAST) {
             return "Loaded source is not a song.";
         }
         if (likedSongs.contains(player.getSong())) {
@@ -269,7 +269,7 @@ public final class User {
      */
     public void stop() {
         if (player != null) {
-            if (player.getType() == 1) {
+            if (player.getType() == Enums.PlayerType.PODCAST) {
                 savedPodcasts.add(new PodcastSave(player.getPodcast(),
                         player.getRemainedTime(), player.getCurrentItem()));
             }
@@ -298,7 +298,7 @@ public final class User {
         if (player == null || player.isFinished()) {
             return "Please load a source before using the shuffle function.";
         }
-        if (player.getType() != 2) {
+        if (player.getType() != Enums.PlayerType.PLAYLIST) {
             return "The loaded source is not a playlist.";
         }
         player.shuffle(seed);
@@ -331,7 +331,7 @@ public final class User {
         if (player.isFinished()) {
             return "Please load a source before skipping to the next track.";
         }
-        if (player.getType() == 1) {
+        if (player.getType() == Enums.PlayerType.PODCAST) {
             return "Skipped to next track successfully. The current track is "
                     + player.getEpisode().getName() + ".";
         } else {
@@ -348,7 +348,7 @@ public final class User {
         if (player == null || player.isFinished()) {
             return "Please load a source before attempting to forward.";
         }
-        if (player.getType() != 1) {
+        if (player.getType() != Enums.PlayerType.PODCAST) {
             return "The loaded source is not a podcast.";
         }
         player.forward();
@@ -363,7 +363,7 @@ public final class User {
         if (player == null || player.isFinished()) {
             return "Please select a source before rewinding.";
         }
-        if (player.getType() != 1) {
+        if (player.getType() != Enums.PlayerType.PODCAST) {
             return "The loaded source is not a podcast.";
         }
         player.backward();

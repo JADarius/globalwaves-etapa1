@@ -12,9 +12,6 @@ import java.util.Random;
 
 @Getter
 public final class Player {
-    private static final int SONG_PLAYER = 0;
-    private static final int PODCAST_PLAYER = 1;
-    private static final int PLAYLIST_PLAYER = 2;
     private static final int TIME_SKIP = 90;
     private static final int REPEAT_TYPES = 3;
     private Song song = null;
@@ -25,7 +22,7 @@ public final class Player {
     private boolean paused;
     private int repeat;
     private boolean finished;
-    private int type; // 0 - song, 1 - podcast, 2 - playlist
+    private Enums.PlayerType type;
     private ArrayList<Integer> shuffleOrder;
     private boolean shuffle;
     private int currentItem;
@@ -43,7 +40,7 @@ public final class Player {
         this();
         this.song = song;
         this.remainedTime = song.getDuration();
-        this.type = SONG_PLAYER;
+        this.type = Enums.PlayerType.SONG;
     }
 
     public Player(final Podcast podcast) {
@@ -51,7 +48,7 @@ public final class Player {
         this.podcast = podcast;
         this.episode = podcast.getEpisodes().get(0);
         this.remainedTime = episode.getDuration();
-        this.type = PODCAST_PLAYER;
+        this.type = Enums.PlayerType.PODCAST;
     }
 
     public Player(final PodcastSave save) {
@@ -60,7 +57,7 @@ public final class Player {
         this.currentItem = save.getCurrentItem();
         this.episode = podcast.getEpisodes().get(currentItem);
         this.remainedTime = save.getRemainedTime();
-        this.type = PODCAST_PLAYER;
+        this.type = Enums.PlayerType.PODCAST;
     }
 
     public Player(final Playlist playlist) {
@@ -68,7 +65,7 @@ public final class Player {
         this.playlist = playlist;
         this.song = playlist.getSongs().get(0);
         this.remainedTime = song.getDuration();
-        this.type = PLAYLIST_PLAYER;
+        this.type = Enums.PlayerType.PLAYLIST;
     }
 
     /**
@@ -124,7 +121,7 @@ public final class Player {
         if (finished) {
             return new Stats("", remainedTime, repeat, shuffle, paused, type);
         } else {
-            if (type == SONG_PLAYER || type == PLAYLIST_PLAYER) {
+            if (type == Enums.PlayerType.SONG || type == Enums.PlayerType.PLAYLIST) {
                 return new Stats(song.getName(), remainedTime, repeat, shuffle, paused, type);
             } else {
                 return new Stats(episode.getName(), remainedTime, repeat, shuffle, paused, type);
@@ -166,7 +163,7 @@ public final class Player {
      */
     public void next() {
         switch (type) {
-            case SONG_PLAYER:
+            case SONG:
                 if (repeat == 1) {
                     remainedTime = song.getDuration();
                     repeat = 0;
@@ -176,7 +173,7 @@ public final class Player {
                     stop();
                 }
                 break;
-            case PODCAST_PLAYER:
+            case PODCAST:
                 if (currentItem == podcast.getEpisodes().size() - 1) {
                     if (repeat == 1) {
                         remainedTime = episode.getDuration();
@@ -192,7 +189,7 @@ public final class Player {
                     paused = false;
                 }
                 break;
-            case PLAYLIST_PLAYER:
+            case PLAYLIST:
                 if (currentItem == playlist.getSongs().size() - 1
                         || (shuffle && currentItem == shuffleOrder.size() - 1)) {
                     if (repeat == 1) {
@@ -231,7 +228,7 @@ public final class Player {
      */
     public String prev() {
         paused = false;
-        if (type == PODCAST_PLAYER) {
+        if (type == Enums.PlayerType.PODCAST) {
             if (remainedTime < episode.getDuration()) {
                 remainedTime = episode.getDuration();
             } else {
@@ -278,28 +275,20 @@ public final class Player {
      * @return a string representing the repeat state
      */
     public String getRepeatState() {
-        if (type == PLAYLIST_PLAYER) {
-            switch (repeat) {
-                case 0:
-                    return "no repeat.";
-                case 1:
-                    return "repeat all.";
-                case 2:
-                    return "repeat current song.";
-                default:
-                    return "";
-            }
+        if (type == Enums.PlayerType.PLAYLIST) {
+            return switch (repeat) {
+                case 0 -> "no repeat.";
+                case 1 -> "repeat all.";
+                case 2 -> "repeat current song.";
+                default -> "";
+            };
         } else {
-            switch (repeat) {
-                case 0:
-                    return "no repeat.";
-                case 1:
-                    return "repeat once.";
-                case 2:
-                    return "repeat infinite.";
-                default:
-                    return "";
-            }
+            return switch (repeat) {
+                case 0 -> "no repeat.";
+                case 1 -> "repeat once.";
+                case 2 -> "repeat infinite.";
+                default -> "";
+            };
         }
     }
 

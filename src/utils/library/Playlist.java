@@ -2,6 +2,7 @@ package utils.library;
 
 import lombok.Getter;
 import lombok.Setter;
+import utils.Enums;
 
 import java.util.ArrayList;
 
@@ -11,7 +12,7 @@ public final class Playlist {
     private String owner;
     private String name;
     private ArrayList<Song> songs;
-    private String visibility;
+    private Enums.Visibility visibility;
     private int followers;
     private int creationTime;
 
@@ -19,7 +20,7 @@ public final class Playlist {
         this.owner = owner;
         this.name = name;
         this.songs = new ArrayList<>();
-        this.visibility = "public";
+        this.visibility = Enums.Visibility.PUBLIC;
         this.followers = 0;
         this.creationTime = creationTime;
     }
@@ -28,10 +29,10 @@ public final class Playlist {
      * Switches the visibility mode of the playlist
      */
     public void switchVisibility() {
-        if (visibility.equals("public")) {
-            visibility = "private";
+        if (visibility == Enums.Visibility.PUBLIC) {
+            visibility = Enums.Visibility.PRIVATE;
         } else {
-            visibility = "public";
+            visibility = Enums.Visibility.PUBLIC;
         }
     }
 
@@ -62,5 +63,12 @@ public final class Playlist {
      */
     public void removeFollower() {
         followers--;
+    }
+
+    public String getVisibility() {
+        return switch (visibility) {
+            case PUBLIC -> "public";
+            case PRIVATE -> "private";
+        };
     }
 }

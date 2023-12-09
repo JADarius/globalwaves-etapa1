@@ -11,12 +11,12 @@ public final class Stats {
     private boolean paused;
 
     public Stats(final String name, final int remainedTime,
-                 final int repeat, final boolean shuffle, final boolean paused, final int type) {
+                 final int repeat, final boolean shuffle, final boolean paused, final Enums.PlayerType type) {
         this.name = name;
         this.remainedTime = remainedTime;
         this.shuffle = shuffle;
         this.paused = paused;
-        if (type == 2) {
+        if (type == Enums.PlayerType.PLAYLIST) {
             switch (repeat) {
                 case 0:
                     this.repeat = "No Repeat";
