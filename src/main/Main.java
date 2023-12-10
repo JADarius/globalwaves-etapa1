@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import fileio.input.CommandInput;
 import fileio.input.LibraryInput;
 import fileio.input.SongInput;
+import utils.Admin;
 import utils.CommandParser;
 import utils.library.Song;
 
@@ -81,13 +82,10 @@ public final class Main {
         CommandInput[] commands = objectMapper.readValue(new File("input/" + filePathInput),
                 CommandInput[].class);
 
-        ArrayList<Song> songs = new ArrayList<>();
-        for (SongInput song : library.getSongs()) {
-            songs.add(new Song(song));
-        }
-        CommandParser parser = new CommandParser(library, objectMapper, songs);
+        Admin.setLibrary(library);
+
         for (CommandInput command : commands) {
-            outputs.add(parser.parseCommand(command));
+            outputs.add(CommandParser.parseCommand(command));
         }
 
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();

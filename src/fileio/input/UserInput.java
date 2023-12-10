@@ -11,4 +11,6 @@ public final class UserInput {
     private String username;
     private int age;
     private String city;
+
+
 }

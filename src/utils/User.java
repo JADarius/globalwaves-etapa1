@@ -1,5 +1,6 @@
 package utils;
 
+import fileio.input.CommandInput;
 import fileio.input.UserInput;
 import fileio.output.PlaylistOutput;
 import lombok.Getter;
@@ -9,9 +10,9 @@ import utils.library.Song;
 
 import java.util.ArrayList;
 
-public final class User {
+public class User implements GenericUser {
     @Getter
-    private final String name;
+    private String name;
     private int age;
     private String city;
     private final ArrayList<Song> likedSongs;
@@ -32,11 +33,10 @@ public final class User {
     private Playlist selectedPlaylist;
     @Getter
     private Player player = null;
+    private Enums.ConnectionStatus connectionStatus;
+    protected Enums.UserType userType;
 
-    public User(final UserInput user) {
-        this.name = user.getUsername();
-        this.city = user.getCity();
-        this.age = user.getAge();
+    public User() {
         searchedSongs = null;
         searchedPodcasts = null;
         searchedPlaylists = null;
@@ -48,6 +48,22 @@ public final class User {
         likedSongs = new ArrayList<>();
         savedPodcasts = new ArrayList<>();
         followedPlaylists = new ArrayList<>();
+        connectionStatus = Enums.ConnectionStatus.ONLINE;
+        userType = Enums.UserType.USER;
+    }
+
+    public User(final UserInput user) {
+        this();
+        name = user.getUsername();
+        city = user.getCity();
+        age = user.getAge();
+    }
+
+    public User(final CommandInput commandInput) {
+        this();
+        name = commandInput.getUsername();
+        city = commandInput.getCity();
+        age = commandInput.getAge();
     }
 
     /**
@@ -143,7 +159,7 @@ public final class User {
      * @param difference The elapsed time from the last command
      */
     public void update(final int difference) {
-        if (player != null) {
+        if (player != null && connectionStatus == Enums.ConnectionStatus.ONLINE) {
             player.update(difference);
         }
     }
@@ -444,5 +460,66 @@ public final class User {
         this.searchedForPlaylists = true;
         this.searchedForSongs = false;
         this.searchedForPodcasts = false;
+    }
+
+    public boolean isOnline() {
+        return switch (connectionStatus) {
+            case ONLINE -> true;
+            case OFFLINE -> false;
+        };
+    }
+
+    @Override
+    public String addAlbum(CommandInput commandInput) {
+        return name + " is not an artist.";
+    }
+
+    @Override
+    public String removeAlbum(CommandInput commandInput) {
+        return name + " is not an artist.";
+    }
+
+    @Override
+    public String addEvent(CommandInput commandInput) {
+        return name + " is not an artist.";
+    }
+
+    @Override
+    public String removeEvent(CommandInput commandInput) {
+        return name + " is not an artist.";
+    }
+
+    @Override
+    public String addMerch(CommandInput commandInput) {
+        return name + " is not an artist.";
+    }
+
+    @Override
+    public String addPocast(CommandInput commandInput) {
+        return name + " is not a host.";
+    }
+
+    @Override
+    public String removePodcast(CommandInput commandInput) {
+        return name + " is not a host.";
+    }
+
+    @Override
+    public String addAnnouncement(CommandInput commandInput) {
+        return name + " is not a host.";
+    }
+
+    @Override
+    public String removeAnnouncement(CommandInput commandInput) {
+        return name + " is not a host.";
+    }
+
+    @Override
+    public String switchConnectionStatus() {
+        connectionStatus = switch (connectionStatus) {
+            case ONLINE -> Enums.ConnectionStatus.OFFLINE;
+            case OFFLINE -> Enums.ConnectionStatus.ONLINE;
+        };
+        return name + " has changed status successfully.";
     }
 }

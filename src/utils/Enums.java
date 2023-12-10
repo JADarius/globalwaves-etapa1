@@ -11,4 +11,15 @@ public class Enums {
         PUBLIC,
         PRIVATE
     }
+
+    public enum ConnectionStatus {
+        ONLINE,
+        OFFLINE
+    }
+
+    public enum UserType {
+        USER,
+        ARTIST,
+        HOST
+    }
 }

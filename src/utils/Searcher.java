@@ -9,8 +9,7 @@ import java.util.ArrayList;
 
 public final class Searcher {
     private static final int MAX_FINDS = 5;
-    public Searcher() {
-
+    private Searcher() {
     }
 
     /**
@@ -19,7 +18,7 @@ public final class Searcher {
      * @param songs The list of songs in which the search will take place
      * @return A list of the first 5 songs that match all the filters
      */
-    public ArrayList<Song> searchSong(final FilterInput filters,
+    public static ArrayList<Song> searchSong(final FilterInput filters,
                                       final ArrayList<Song> songs) {
         int songCount = 0;
         ArrayList<Song> list = new ArrayList<Song>();
@@ -87,7 +86,7 @@ public final class Searcher {
      * @param podcasts The list of podcasts in which the search will take place
      * @return A list of the first 5 podcasts that match all the filters
      */
-    public ArrayList<Podcast> searchPodcast(final FilterInput filters,
+    public static ArrayList<Podcast> searchPodcast(final FilterInput filters,
                                             final ArrayList<Podcast> podcasts) {
         int podcastCount = 0;
         ArrayList<Podcast> list = new ArrayList<Podcast>();
@@ -114,7 +113,7 @@ public final class Searcher {
      * @param username Username used to check if the playlist can be accessed by the user
      * @return A list of the first 5 playlists that match all the filters
      */
-    public ArrayList<Playlist> searchPlaylist(final FilterInput filters,
+    public static ArrayList<Playlist> searchPlaylist(final FilterInput filters,
                                               final ArrayList<Playlist> playlists,
                                               final String username) {
         int playlistCount = 0;
