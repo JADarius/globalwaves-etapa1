@@ -1,4 +1,4 @@
-package utils;
+package utils.accounts;
 
 import fileio.input.CommandInput;
 

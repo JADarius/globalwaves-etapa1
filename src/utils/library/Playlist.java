@@ -5,13 +5,14 @@ import lombok.Setter;
 import utils.Enums;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
-public final class Playlist {
+public final class Playlist implements SongCollection {
     private String owner;
     private String name;
-    private ArrayList<Song> songs;
+    private List<Song> songs;
     private Enums.Visibility visibility;
     private int followers;
     private int creationTime;
@@ -70,5 +71,13 @@ public final class Playlist {
             case PUBLIC -> "public";
             case PRIVATE -> "private";
         };
+    }
+
+    public int getTotalLikes() {
+        int like_count = 0;
+        for (Song song : songs) {
+            like_count += song.getLikes();
+        }
+        return like_count;
     }
 }

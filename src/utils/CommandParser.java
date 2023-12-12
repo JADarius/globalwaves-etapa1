@@ -3,15 +3,15 @@ package utils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fileio.input.CommandInput;
-import fileio.input.LibraryInput;
 import fileio.output.*;
-import utils.library.Library;
+import utils.accounts.GenericUser;
+import utils.accounts.User;
 import utils.library.Playlist;
 import utils.library.Podcast;
 import utils.library.Song;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.List;
 
 public final class CommandParser {
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -49,7 +49,7 @@ public final class CommandParser {
             case "getTop5Playlists" -> getTop5Playlists(commandInput);
             case "getTop5Songs" -> getTop5Songs(commandInput);
             case "switchConnectionStatus" -> switchConnectionStatus(commandInput);
-//            case "getOnlineUsers" -> getOnlineUsers(commandInput);
+            case "getOnlineUsers" -> getOnlineUsers(commandInput);
             default -> null;
         };
     }
@@ -64,11 +64,11 @@ public final class CommandParser {
         }
         if (commandInput.getType().equals("song")) {
             SearchOutput searchOutput = new SearchOutput(commandInput);
-            ArrayList<Song> list = Searcher.searchSong(commandInput.getFilters(),
+            List<Song> list = Searcher.searchSong(commandInput.getFilters(),
                     Admin.getSongs());
             currentUser.setSearchedSongs(list);
             searchOutput.setMessage("Search returned " + list.size() + " results");
-            ArrayList<String> results = new ArrayList<>();
+            List<String> results = new ArrayList<>();
             for (Song song : list) {
                 results.add(song.getName());
             }
@@ -76,11 +76,11 @@ public final class CommandParser {
             return mapper.valueToTree(searchOutput);
         } else if (commandInput.getType().equals("podcast")) {
             SearchOutput searchOutput = new SearchOutput(commandInput);
-            ArrayList<Podcast> list = Searcher.searchPodcast(commandInput.getFilters(),
+            List<Podcast> list = Searcher.searchPodcast(commandInput.getFilters(),
                     Admin.getPodcasts());
             currentUser.setSearchedPodcasts(list);
             searchOutput.setMessage("Search returned " + list.size() + " results");
-            ArrayList<String> results = new ArrayList<>();
+            List<String> results = new ArrayList<>();
             for (Podcast podcast : list) {
                 results.add(podcast.getName());
             }
@@ -88,11 +88,11 @@ public final class CommandParser {
             return mapper.valueToTree(searchOutput);
         } else {
             SearchOutput searchOutput = new SearchOutput(commandInput);
-            ArrayList<Playlist> list = Searcher.searchPlaylist(commandInput.getFilters(),
+            List<Playlist> list = Searcher.searchPlaylist(commandInput.getFilters(),
                     Admin.getPlaylists(), commandInput.getUsername());
             currentUser.setSearchedPlaylists(list);
             searchOutput.setMessage("Search returned " + list.size() + " results");
-            ArrayList<String> results = new ArrayList<>();
+            List<String> results = new ArrayList<>();
             for (Playlist playlist : list) {
                 results.add(playlist.getName());
             }
@@ -240,7 +240,7 @@ public final class CommandParser {
     }
 
     private static JsonNode switchConnectionStatus(final CommandInput commandInput) {
-        GenericUser currentUser = Admin.getUserFromAll(commandInput.getName());
+        GenericUser currentUser = Admin.getUserFromAll(commandInput.getUsername());
         MessageOutput output = new MessageOutput(commandInput);
         if (currentUser == null) {
             output.setMessage("The username " + commandInput.getUsername() + " doesn't exist.");
@@ -250,14 +250,9 @@ public final class CommandParser {
         return mapper.valueToTree(output);
     }
 
-//    private static JsonNode getOnlineUsers(final CommandInput commandInput) {
-//        AnonymousOutput output = new AnonymousOutput(commandInput);
-//        ArrayList<String> onlineList = output.getResult();
-//        for (User user: library.getUsers()) {
-//            if (user.isOnline()) {
-//                onlineList.add(user.getName());
-//            }
-//        }
-//        return mapper.valueToTree(output);
-//    }
+    private static JsonNode getOnlineUsers(final CommandInput commandInput) {
+        AnonymousOutput output = new AnonymousOutput(commandInput);
+        output.setResult(Admin.getOnlineUsers());
+        return mapper.valueToTree(output);
+    }
 }

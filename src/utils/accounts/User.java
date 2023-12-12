@@ -1,55 +1,65 @@
-package utils;
+package utils.accounts;
 
 import fileio.input.CommandInput;
 import fileio.input.UserInput;
 import fileio.output.PlaylistOutput;
 import lombok.Getter;
+import utils.Enums;
+import utils.Player;
+import utils.PodcastSave;
+import utils.library.Album;
 import utils.library.Playlist;
 import utils.library.Podcast;
 import utils.library.Song;
+import utils.pages.HomePage;
+import utils.pages.LikeContentPage;
+import utils.pages.PageObserver;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class User implements GenericUser {
     @Getter
     private String name;
     private int age;
     private String city;
-    private final ArrayList<Song> likedSongs;
-    private final ArrayList<Playlist> followedPlaylists;
     @Getter
-    private ArrayList<Podcast> searchedPodcasts;
-    private final ArrayList<PodcastSave> savedPodcasts;
+    private final List<Song> likedSongs;
     @Getter
-    private ArrayList<Playlist> searchedPlaylists;
+    private final List<Playlist> followedPlaylists;
     @Getter
-    private ArrayList<Song> searchedSongs;
-    private final ArrayList<Playlist> playlists;
-    private boolean searchedForSongs;
-    private boolean searchedForPodcasts;
-    private boolean searchedForPlaylists;
+    private List<Podcast> searchedPodcasts;
+    private final List<PodcastSave> savedPodcasts;
+    @Getter
+    private List<Playlist> searchedPlaylists;
+    @Getter
+    private List<Song> searchedSongs;
+    private final List<Playlist> playlists;
+    private final List<PageObserver> searchedPages;
     private Song selectedSong;
     private Podcast selectedPodcast;
     private Playlist selectedPlaylist;
     @Getter
     private Player player = null;
     private Enums.ConnectionStatus connectionStatus;
-    protected Enums.UserType userType;
+    private final List<PageObserver> observers;
+    private PageObserver currentPage;
+    private Enums.MediaType searchType;
+    private Enums.MediaType selectType;
 
     public User() {
-        searchedSongs = null;
-        searchedPodcasts = null;
-        searchedPlaylists = null;
-        searchedForSongs = false;
-        searchedForPlaylists = false;
-        selectedSong = null;
-        selectedPodcast = null;
         playlists = new ArrayList<>();
         likedSongs = new ArrayList<>();
         savedPodcasts = new ArrayList<>();
         followedPlaylists = new ArrayList<>();
+        searchedPages = new ArrayList<>();
         connectionStatus = Enums.ConnectionStatus.ONLINE;
-        userType = Enums.UserType.USER;
+        currentPage = new HomePage(this);
+        observers = new ArrayList<>();
+        observers.add(currentPage);
+        observers.add(new LikeContentPage(this));
+        searchType = Enums.MediaType.NONE;
+        selectType = Enums.MediaType.NONE;
     }
 
     public User(final UserInput user) {
@@ -70,9 +80,8 @@ public class User implements GenericUser {
      * In case of a faulty "select" command, this is used to unload previous selections
      */
     private void selectFail() {
-        selectedPlaylist = null;
-        selectedPodcast = null;
-        selectedSong = null;
+        selectType = Enums.MediaType.NONE;
+        searchType = Enums.MediaType.NONE;
     }
 
     /**
@@ -81,49 +90,44 @@ public class User implements GenericUser {
      * @return A string giving out a success/failure message
      */
     public String select(int index) {
-        if (searchedForSongs) {
-            index--;
-            if (index >= searchedSongs.size()) {
-                selectFail();
-                return "The selected ID is too high.";
-            } else {
-                selectedSong = searchedSongs.get(index);
-                selectedPodcast = null;
-                selectedPlaylist = null;
-                searchedSongs = null;
-                searchedForSongs = false;
-                return "Successfully selected " + selectedSong.getName() + ".";
+        index--;
+        String output = "Please conduct a search before making a selection.";
+        switch (searchType) {
+            case SONG -> {
+                if (index >= searchedSongs.size()) {
+                    selectFail();
+                    return "The selected ID is too high.";
+                } else {
+                    selectedSong = searchedSongs.get(index);
+                    output =  "Successfully selected " + selectedSong.getName() + ".";
+                    searchType = Enums.MediaType.NONE;
+                    selectType = Enums.MediaType.SONG;
+                }
+            }
+            case PODCAST -> {
+                if (index >= searchedPodcasts.size()) {
+                    selectFail();
+                    return "The selected ID is too high.";
+                } else {
+                    selectedPodcast = searchedPodcasts.get(index);
+                    output =  "Successfully selected " + selectedPodcast.getName() + ".";
+                    searchType = Enums.MediaType.NONE;
+                    selectType = Enums.MediaType.PODCAST;
+                }
+            }
+            case PLAYLIST -> {
+                if (index >= searchedPlaylists.size()) {
+                    selectFail();
+                    return "The selected ID is too high.";
+                } else {
+                    selectedPlaylist = searchedPlaylists.get(index);
+                    output =  "Successfully selected " + selectedPlaylist.getName() + ".";
+                    searchType = Enums.MediaType.NONE;
+                    selectType = Enums.MediaType.PLAYLIST;
+                }
             }
         }
-        if (searchedForPodcasts) {
-            index--;
-            if (index >= searchedPodcasts.size()) {
-                selectFail();
-                return "The selected ID is too high.";
-            } else {
-                selectedPodcast = searchedPodcasts.get(index);
-                selectedSong = null;
-                selectedPlaylist = null;
-                searchedPodcasts = null;
-                searchedForPodcasts = false;
-                return "Successfully selected " + selectedPodcast.getName() + ".";
-            }
-        }
-        if (searchedForPlaylists) {
-            index--;
-            if (index >= searchedPlaylists.size()) {
-                selectFail();
-                return "The selected ID is too high.";
-            } else {
-                selectedPlaylist = searchedPlaylists.get(index);
-                selectedPodcast = null;
-                selectedSong = null;
-                searchedPlaylists = null;
-                searchedForPlaylists = false;
-                return "Successfully selected " + selectedPlaylist.getName() + ".";
-            }
-        }
-        return "Please conduct a search before making a selection.";
+        return output;
     }
 
     /**
@@ -131,24 +135,24 @@ public class User implements GenericUser {
      * @return A string giving out a success/failure message
      */
     public String load() {
-        if (selectedSong != null) {
+        if (selectType == Enums.MediaType.SONG) {
             player = new Player(selectedSong);
-            selectedSong = null;
+            selectType = Enums.MediaType.NONE;
             return "Playback loaded successfully.";
-        } else if (selectedPodcast != null) {
+        } else if (selectType == Enums.MediaType.PODCAST) {
             for (PodcastSave save : savedPodcasts) {
                 if (save.getPodcast().getName().equals(selectedPodcast.getName())) {
                     player = new Player(save);
-                    selectedPodcast = null;
+                    selectType = Enums.MediaType.NONE;
                     return "Playback loaded successfully.";
                 }
             }
             player = new Player(selectedPodcast);
-            selectedPodcast = null;
+            selectType = Enums.MediaType.NONE;
             return "Playback loaded successfully.";
-        } else if (selectedPlaylist != null) {
+        } else if (selectType == Enums.MediaType.PLAYLIST) {
             player = new Player(selectedPlaylist);
-            selectedPlaylist = null;
+            selectType = Enums.MediaType.NONE;
             return "Playback loaded successfully.";
         }
         return "Please select a source before attempting to load.";
@@ -224,12 +228,18 @@ public class User implements GenericUser {
         return playlists.get(pid).addRemoveInPlaylist(player.getSong());
     }
 
+    public void notifyObservers() {
+        for (PageObserver observer : observers) {
+            observer.update();
+        }
+    }
+
     /**
      * Likes the currently playing song
      * @param songs A list of all the songs from the library to register the like
      * @return A string giving out a success/failure message
      */
-    public String like(final ArrayList<Song> songs) {
+    public String like(final List<Song> songs) {
         if (player == null || player.getSong() == null) {
             return "Please load a source before liking or unliking.";
         }
@@ -241,6 +251,7 @@ public class User implements GenericUser {
             for (Song song : songs) {
                 if (song.getName().equals(player.getSong().getName())) {
                     song.dislike();
+                    notifyObservers();
                     return "Unlike registered successfully.";
                 }
             }
@@ -249,6 +260,7 @@ public class User implements GenericUser {
             for (Song song : songs) {
                 if (song.getName().equals(player.getSong().getName())) {
                     song.like();
+                    notifyObservers();
                     return "Like registered successfully.";
                 }
             }
@@ -260,8 +272,8 @@ public class User implements GenericUser {
      * Shows all the playlists of the user
      * @return A list of all the playlists of the user
      */
-    public ArrayList<PlaylistOutput> showPlaylists() {
-        ArrayList<PlaylistOutput> output = new ArrayList<>();
+    public List<PlaylistOutput> showPlaylists() {
+        List<PlaylistOutput> output = new ArrayList<>();
         for (Playlist playlist : playlists) {
             output.add(new PlaylistOutput(playlist));
         }
@@ -272,8 +284,8 @@ public class User implements GenericUser {
      * Shows a list of all the liked songs
      * @return A list of all the liked songs
      */
-    public ArrayList<String> showPreferredSongs() {
-        ArrayList<String> output = new ArrayList<>();
+    public List<String> showPreferredSongs() {
+        List<String> output = new ArrayList<>();
         for (Song song : likedSongs) {
             output.add(song.getName());
         }
@@ -406,8 +418,8 @@ public class User implements GenericUser {
      * @return A string giving out a success/failure message
      */
     public String follow() {
-        if (selectedPlaylist == null) {
-            if (selectedPodcast == null && selectedSong == null) {
+        if (selectType != Enums.MediaType.PLAYLIST) {
+            if (selectType == Enums.MediaType.NONE) {
                 return "Please select a source before following or unfollowing.";
             } else {
                 return "The selected source is not a playlist.";
@@ -419,12 +431,12 @@ public class User implements GenericUser {
         if (followedPlaylists.contains(selectedPlaylist)) {
             followedPlaylists.remove(selectedPlaylist);
             selectedPlaylist.removeFollower();
-            selectedPlaylist = null;
+            selectType = Enums.MediaType.NONE;
             return "Playlist unfollowed successfully.";
         } else {
             followedPlaylists.add(selectedPlaylist);
             selectedPlaylist.addFollower();
-            selectedPlaylist = null;
+            selectType = Enums.MediaType.NONE;
             return "Playlist followed successfully.";
         }
     }
@@ -433,33 +445,27 @@ public class User implements GenericUser {
      * Setter for searchedSongs
      * @param searchedSongs The searched songs
      */
-    public void setSearchedSongs(final ArrayList<Song> searchedSongs) {
+    public void setSearchedSongs(final List<Song> searchedSongs) {
         this.searchedSongs = searchedSongs;
-        this.searchedForSongs = true;
-        this.searchedForPlaylists = false;
-        this.searchedForPodcasts = false;
+        this.searchType = Enums.MediaType.SONG;
     }
 
     /**
      * Setter for searchedPodcasts
      * @param searchedPodcasts The searched podcasts
      */
-    public void setSearchedPodcasts(final ArrayList<Podcast> searchedPodcasts) {
+    public void setSearchedPodcasts(final List<Podcast> searchedPodcasts) {
         this.searchedPodcasts = searchedPodcasts;
-        this.searchedForPodcasts = true;
-        this.searchedForPlaylists = false;
-        this.searchedForSongs = false;
+        this.searchType = Enums.MediaType.PODCAST;
     }
 
     /**
      * Setter for searchedPlaylist
      * @param searchedPlaylists The searched playlists
      */
-    public void setSearchedPlaylists(final ArrayList<Playlist> searchedPlaylists) {
+    public void setSearchedPlaylists(final List<Playlist> searchedPlaylists) {
         this.searchedPlaylists = searchedPlaylists;
-        this.searchedForPlaylists = true;
-        this.searchedForSongs = false;
-        this.searchedForPodcasts = false;
+        this.searchType = Enums.MediaType.PLAYLIST;
     }
 
     public boolean isOnline() {
@@ -467,6 +473,46 @@ public class User implements GenericUser {
             case ONLINE -> true;
             case OFFLINE -> false;
         };
+    }
+
+    public boolean checkForAlbum(final Album album) {
+        if (player == null) {
+            return false;
+        }
+        switch (player.getType()) {
+            case PODCAST -> {
+                return false;
+            }
+            case SONG -> {
+                return album.getSongs().contains(player.getSong());
+            }
+            case PLAYLIST -> {
+                for (Song song : player.getPlaylist().getSongs()) {
+                    if (album.getSongs().contains(song)) {
+                        return true;
+                    }
+                }
+            }
+        };
+        return false;
+    }
+
+    public boolean checkForPodcast(final Podcast podcast) {
+        if (player == null) {
+            return false;
+        }
+        if (player.getType() == Enums.PlayerType.PODCAST) {
+            return player.getPodcast().equals(podcast);
+        }
+        return false;
+    }
+
+    public void changePage(final PageObserver page) {
+        currentPage = page;
+    }
+
+    public String printCurrentPage() {
+        return currentPage.getOutput();
     }
 
     @Override

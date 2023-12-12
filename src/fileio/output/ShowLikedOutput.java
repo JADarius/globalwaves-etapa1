@@ -5,11 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 public final class ShowLikedOutput extends GenericOutput {
-    private ArrayList<String> result;
+    private List<String> result;
 
     public ShowLikedOutput(final CommandInput query) {
         this.command = query.getCommand();

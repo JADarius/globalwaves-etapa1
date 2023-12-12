@@ -2,12 +2,13 @@ package utils;
 
 import fileio.input.EpisodeInput;
 import lombok.Getter;
-import utils.library.Playlist;
 import utils.library.Podcast;
 import utils.library.Song;
+import utils.library.SongCollection;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 @Getter
@@ -16,14 +17,14 @@ public final class Player {
     private static final int REPEAT_TYPES = 3;
     private Song song = null;
     private Podcast podcast = null;
-    private Playlist playlist = null;
+    private SongCollection playlist = null;
     private EpisodeInput episode = null;
     private int remainedTime;
     private boolean paused;
     private int repeat;
     private boolean finished;
     private Enums.PlayerType type;
-    private ArrayList<Integer> shuffleOrder;
+    private List<Integer> shuffleOrder;
     private boolean shuffle;
     private int currentItem;
 
@@ -60,7 +61,7 @@ public final class Player {
         this.type = Enums.PlayerType.PODCAST;
     }
 
-    public Player(final Playlist playlist) {
+    public Player(final SongCollection playlist) {
         this();
         this.playlist = playlist;
         this.song = playlist.getSongs().get(0);

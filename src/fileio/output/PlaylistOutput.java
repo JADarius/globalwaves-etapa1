@@ -7,12 +7,13 @@ import utils.library.Playlist;
 import utils.library.Song;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 public final class PlaylistOutput {
     private String name;
-    private ArrayList<String> songs;
+    private List<String> songs;
     private String visibility;
     private int followers;
 

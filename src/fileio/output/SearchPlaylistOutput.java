@@ -5,11 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 public final class SearchPlaylistOutput extends GenericOutput {
-    private ArrayList<PlaylistOutput> result;
+    private List<PlaylistOutput> result;
 
     public SearchPlaylistOutput(final CommandInput query) {
         this.command = query.getCommand();

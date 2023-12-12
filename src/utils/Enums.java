@@ -17,9 +17,18 @@ public class Enums {
         OFFLINE
     }
 
-    public enum UserType {
-        USER,
+    public enum CreationType {
+        ADMIN,
+        ARTIST
+    }
+
+    public enum MediaType {
+        SONG,
+        PODCAST,
+        PLAYLIST,
+        ALBUM,
         ARTIST,
-        HOST
+        HOST,
+        NONE
     }
 }

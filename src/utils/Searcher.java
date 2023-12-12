@@ -1,11 +1,15 @@
 package utils;
 
 import fileio.input.FilterInput;
+import utils.accounts.Artist;
+import utils.accounts.GenericUser;
+import utils.library.Album;
 import utils.library.Playlist;
 import utils.library.Podcast;
 import utils.library.Song;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public final class Searcher {
     private static final int MAX_FINDS = 5;
@@ -18,10 +22,10 @@ public final class Searcher {
      * @param songs The list of songs in which the search will take place
      * @return A list of the first 5 songs that match all the filters
      */
-    public static ArrayList<Song> searchSong(final FilterInput filters,
-                                      final ArrayList<Song> songs) {
+    public static List<Song> searchSong(final FilterInput filters,
+                                      final List<Song> songs) {
         int songCount = 0;
-        ArrayList<Song> list = new ArrayList<Song>();
+        List<Song> list = new ArrayList<Song>();
         for (Song song : songs) {
             if (filters.getName() != null && !song.getName().startsWith(filters.getName())) {
                 continue;
@@ -86,10 +90,10 @@ public final class Searcher {
      * @param podcasts The list of podcasts in which the search will take place
      * @return A list of the first 5 podcasts that match all the filters
      */
-    public static ArrayList<Podcast> searchPodcast(final FilterInput filters,
-                                            final ArrayList<Podcast> podcasts) {
+    public static List<Podcast> searchPodcast(final FilterInput filters,
+                                            final List<Podcast> podcasts) {
         int podcastCount = 0;
-        ArrayList<Podcast> list = new ArrayList<Podcast>();
+        List<Podcast> list = new ArrayList<Podcast>();
         for (Podcast podcast : podcasts) {
             if (filters.getName() != null && !podcast.getName().contains(filters.getName())) {
                 continue;
@@ -113,11 +117,11 @@ public final class Searcher {
      * @param username Username used to check if the playlist can be accessed by the user
      * @return A list of the first 5 playlists that match all the filters
      */
-    public static ArrayList<Playlist> searchPlaylist(final FilterInput filters,
-                                              final ArrayList<Playlist> playlists,
+    public static List<Playlist> searchPlaylist(final FilterInput filters,
+                                              final List<Playlist> playlists,
                                               final String username) {
         int playlistCount = 0;
-        ArrayList<Playlist> list = new ArrayList<>();
+        List<Playlist> list = new ArrayList<>();
         for (Playlist playlist : playlists) {
             if (playlist.getVisibility().equals("private")
                     && !playlist.getOwner().equals(username)) {
@@ -132,6 +136,46 @@ public final class Searcher {
             list.add(playlist);
             playlistCount += 1;
             if (playlistCount == MAX_FINDS) {
+                break;
+            }
+        }
+        return list;
+    }
+
+    public static List<Album> searchAlbum(final FilterInput filters,
+                                          final List<Album> albums) {
+        int albumCount = 0;
+        List<Album> list = new ArrayList<>();
+        for (Album album : albums) {
+            if (filters.getName() != null && !album.getName().startsWith(filters.getName())) {
+                continue;
+            }
+            if (filters.getOwner() != null && !album.getOwner().startsWith(filters.getOwner())) {
+                continue;
+            }
+            if (filters.getDescription() != null && !album.getDescription().startsWith(filters.getDescription())) {
+                continue;
+            }
+            list.add(album);
+            albumCount += 1;
+            if (albumCount == MAX_FINDS) {
+                break;
+            }
+        }
+        return list;
+    }
+
+    public static List<GenericUser> searchArtist(final FilterInput filters,
+                                                 final List<GenericUser> users) {
+        int userCount = 0;
+        List<GenericUser> list = new ArrayList<>();
+        for (GenericUser user : users) {
+            if (filters.getName() != null && !user.getName().startsWith(filters.getName())) {
+                continue;
+            }
+            list.add(user);
+            userCount += 1;
+            if (userCount == MAX_FINDS) {
                 break;
             }
         }
